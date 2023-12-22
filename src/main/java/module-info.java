@@ -4,6 +4,6 @@ module com.trulyao.spawn {
 
     requires org.kordamp.ikonli.javafx;
 
-    opens com.trulyao.spawn to javafx.fxml;
-    exports com.trulyao.spawn;
+    opens com.trulyao.spawn.application to javafx.fxml;
+    exports com.trulyao.spawn.application;
 }
