@@ -1,4 +1,5 @@
 module com.trulyao.spawn {
+    requires transitive javafx.graphics;
     requires javafx.controls;
     requires javafx.fxml;
 

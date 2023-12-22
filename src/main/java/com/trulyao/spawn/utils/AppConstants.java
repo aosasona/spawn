@@ -3,7 +3,7 @@ package com.trulyao.spawn.utils;
 import java.nio.file.FileSystems;
 
 final public class AppConstants {
-    public static final String APP_NAME = "Seki";
+    public static final String APP_NAME = "Spawn";
     public static final String APP_VERSION = "0.0.1";
     public static final String APP_AUTHOR = "Ayodeji Osasona";
     public static final String APP_AUTHOR_EMAIL = "ayodeji@trulyao.dev";
@@ -21,10 +21,10 @@ final public class AppConstants {
         String path = switch (key) {
             case DATA_DIR -> "data";
             case LOG_DIR -> "logs";
-            case STORE -> ".stores";
+            case STORE -> "collections";
         };
 
-        return String.format("%s%s.seki/%s", homeDir, fileSeparator, path);
+        return String.format("%s%sspawn/%s", homeDir, fileSeparator, path);
     }
 
     public static String getStorePath(String storeName) {
