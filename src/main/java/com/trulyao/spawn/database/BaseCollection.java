@@ -2,6 +2,7 @@ package com.trulyao.spawn.database;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.HashMap;
 import com.trulyao.spawn.utils.AppConstants;
 import com.trulyao.spawn.utils.Logger;
@@ -11,28 +12,60 @@ import com.trulyao.spawn.utils.Logger;
  */
 
 abstract public class BaseCollection {
-	// The name of the collection is used for storage and retrieval of the data.
-	private String collectionName;
-
-	// The index name itself is not used for storage at all (for flexibility) but whatever index is chosen serves as the key for the data HashMap which provides blazing fast access to the data.
-	private String collectionIndexKey;
+	private static Class<? extends BaseCollection> instance;
 
 	private HashMap<String, Class<? extends BaseCollection>> data;
 
-	public BaseCollection(String collectionName, String collectionIndexKey) {
-		this.collectionName = this.normalizeCollectionName(collectionName);
-		this.collectionIndexKey = collectionIndexKey;
+	private BaseCollection() {
 		this.data = new HashMap<String, Class<? extends BaseCollection>>();
+
+		if (!this.exists()) { this.init(); }
+		this.load();
 	}
+
+	public static Class<? extends BaseCollection> getInstance() {
+		synchronized (BaseCollection.class) {
+			if (instance == null) {
+				instance = BaseCollection.class;
+			}
+		}
+
+		return instance;
+	}
+
+	// The name of the collection is used for storage and retrieval of the data. - provided by the extending class
+	abstract protected String getCollectionName();
+
+	// The index name itself is not used for storage at all (for flexibility) but whatever index is chosen serves as the key for the data HashMap which provides blazing fast access to the data. - provided by the extending class
+	abstract protected String getCollectionIndexKey();
 
 	// This should only be called when the class is first initialized.
 	protected void load() {
+		try {
+			File file = new File(this.getCollectionPath());
+			var content = new String(Files.readAllBytes(file.toPath()));
+
+			// parse the JSON into its raw state 
+			// `data` - this holds the actual data in the JSON
+			// `meta` - this holds the metadata for the collection e.g. the name of the collection, the index key, etc.
+		} catch (IOException e) {
+			var meta = new HashMap<String, String>();
+			meta.put("collectionName", this.getCollectionName());
+			meta.put("originalError", e.getMessage());
+			meta.put("originalStackTrace", e.getStackTrace().toString());
+			Logger.getSharedInstance().fatal("Failed to load collection file: " + this.getCollectionPath(), meta);
+		}
+	}
+
+	protected Boolean exists() {
+		File file = new File(this.getCollectionPath());
+		return file.exists();
 	}
 
 	protected void init() {
-		File file = new File(this.getCollectionPath());
-		file.getParentFile().mkdirs();
 		try {
+			File file = new File(this.getCollectionPath());
+			file.getParentFile().mkdirs();
 			file.createNewFile();
 		} catch (IOException e) {
 			var meta = new HashMap<String, String>();
@@ -44,12 +77,8 @@ abstract public class BaseCollection {
 	}
 
 	// This only keeps a-z, A-Z, 0-9, and _ in the collection name as the collection name is used as the actual filename
-	private String normalizeCollectionName(String collectionName) {
+	protected String normalizeCollectionName(String collectionName) {
 		return collectionName.replaceAll("[^a-zA-Z0-9_]", "");
-	}
-
-	private String getCollectionName() {
-		return this.collectionName;
 	}
 
 	private String getCollectionPath() {

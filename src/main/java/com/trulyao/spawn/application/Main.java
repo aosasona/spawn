@@ -1,5 +1,7 @@
 package com.trulyao.spawn.application;
 
+import com.trulyao.spawn.utils.Logger;
+import java.util.HashMap;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -10,14 +12,22 @@ public class Main extends Application {
     private Stage mainStage;
 
     @Override
-    public void start(Stage stage) throws Exception {
-        this.mainStage = stage;
-        FXMLLoader loader = new FXMLLoader(getClass().getResource(FXML_DIR + "main.fxml"));
-        Scene scene = new Scene(loader.load());
+    public void start(Stage stage) {
+        try {
+            this.mainStage = stage;
+            FXMLLoader loader = new FXMLLoader(getClass().getResource(FXML_DIR + "main.fxml"));
+            Scene scene = new Scene(loader.load());
 
-        stage.setScene(scene);
-        this.setStageProperties();
-        this.mainStage.show();
+            stage.setScene(scene);
+            this.setStageProperties();
+            this.mainStage.show();
+        } catch (Exception e) {
+            var meta = new HashMap<String, String>();
+            meta.put("originalError", e.getMessage());
+            meta.put("originalStackTrace", e.getStackTrace().toString());
+
+            Logger.getSharedInstance().fatal("Something went wrong while loading the main window.", meta);
+        }
     }
 
     private void setStageProperties() {
@@ -26,6 +36,8 @@ public class Main extends Application {
         this.mainStage.setHeight(768);
         this.mainStage.setWidth(1200);
         this.mainStage.setResizable(false);
+        Logger.getSharedInstance().debug("Set stage properties.");
+        ;
     }
 
     public static void main(String[] args) {
