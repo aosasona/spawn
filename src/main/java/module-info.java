@@ -2,6 +2,8 @@ module com.trulyao.spawn {
     requires transitive javafx.graphics;
     requires javafx.controls;
     requires javafx.fxml;
+    requires com.fasterxml.jackson.databind;
+    requires com.fasterxml.jackson.annotation;
 
     requires org.kordamp.ikonli.javafx;
 
