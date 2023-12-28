@@ -4,7 +4,7 @@ import com.trulyao.spawn.utils.Logger;
 import javafx.scene.control.Alert;
 import javafx.stage.Stage;
 
-public class ExceptionHandler {
+final public class ExceptionHandler {
     private static final Logger log = Logger.getSharedInstance();
     public static void handle(Stage stage, Exception e) {
         if (e instanceof FatalException) {

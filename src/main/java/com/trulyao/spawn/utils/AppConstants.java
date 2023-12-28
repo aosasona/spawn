@@ -29,4 +29,8 @@ final public class AppConstants {
 
         return String.format("%s%sspawn/%s", homeDir, fileSeparator, path);
     }
+
+    public static String makeFilename(String slugifiedFilename) {
+        return getPath(PathKey.DATA_DIR) + fileSeparator + slugifiedFilename;
+    }
 }

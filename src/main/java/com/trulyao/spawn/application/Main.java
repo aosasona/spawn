@@ -2,9 +2,9 @@ package com.trulyao.spawn.application;
 
 import com.trulyao.spawn.utils.AppConstants;
 import com.trulyao.spawn.utils.Logger;
+import com.trulyao.spawn.utils.exceptions.ExceptionHandler;
 import com.trulyao.spawn.views.MainView;
 
-import java.util.HashMap;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.layout.Pane;
@@ -17,15 +17,12 @@ public class Main extends Application {
     public void start(Stage stage) {
         try {
             this.mainStage = stage;
-            Pane root = new MainView().render();
+            Pane root = new MainView(this.mainStage).render();
             stage.setScene(new Scene(root));
             this.setStageProperties();
             this.mainStage.show();
         } catch (Exception e) {
-            var meta = new HashMap<String, String>();
-            meta.put("originalError", e.getMessage());
-            meta.put("originalStackTrace", e.getStackTrace().toString());
-            Logger.getSharedInstance().fatal("Something went wrong while loading the main window.", meta);
+            ExceptionHandler.handle(mainStage, e);
         }
     }
 

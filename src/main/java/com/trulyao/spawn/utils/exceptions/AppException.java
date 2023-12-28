@@ -1,7 +1,7 @@
 package com.trulyao.spawn.utils.exceptions;
 
-class AppException extends Exception {
-  AppException(String message) {
+final public class AppException extends Exception {
+  public AppException(String message) {
     super(message);
   }
 }
