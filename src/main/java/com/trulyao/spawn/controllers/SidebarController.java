@@ -1,6 +1,7 @@
 package com.trulyao.spawn.controllers;
 
 import java.io.File;
+import java.io.FileWriter;
 import java.util.HashMap;
 import java.util.List;
 
@@ -25,15 +26,15 @@ public class SidebarController {
 		ExceptionHandler.handle(this.mainStage, e);
 	}
 
-	public String handleNewFile(String name) throws AppException {
-		String filename = Common.slugify(name) + ".md";
+	public String handleNewFile(String title) throws AppException {
+		String filename = Common.slugify(title) + ".md";
 		String fullPath = AppConstants.makeFilename(filename);
 
 		if (this.fileAlreadyExists(fullPath)) {
 			throw new AppException("A file with that name already exists.");
 		}
 
-		this.createFileOnDisk(fullPath);
+		this.createFileOnDisk(fullPath, title);
 		return fullPath;
 	}
 
@@ -42,26 +43,42 @@ public class SidebarController {
 		return file.exists();
 	}
 
-	private void createFileOnDisk(String fullPath) {
-		// check if the parent directory exists
-		// if it doesn't, create it
-		File baseDir = new File(AppConstants.getPath(AppConstants.PathKey.DATA_DIR));
-		if (!baseDir.exists()) {
-			if(!baseDir.mkdirs()) {
-				Logger.getSharedInstance().fatal("Could not create the data directory.");
-			}
-		}
-
-		File file = new File(fullPath);
+	private void createFileOnDisk(String fullPath, String title) {
 		try {
+			// check if the parent directory exists
+			// if it doesn't, create it
+			File baseDir = new File(AppConstants.getPath(AppConstants.PathKey.DATA_DIR));
+			if (!baseDir.exists()) {
+				if(!baseDir.mkdirs()) {
+					Logger.getSharedInstance().fatal("Could not create the data directory.");
+				}
+			}
+
+			File file = new File(fullPath);
 			if (!file.createNewFile()) {
 				Logger.getSharedInstance().fatal("Could not create the file.");
 			}
-			Document.getRecentDocuments();
+			this.writeDefaultFrontMatter(file, title);
 		} catch (Exception e) {
 			var meta = new HashMap<String, String>();
 			meta.put("originalError", e.getMessage());
 			Logger.getSharedInstance().fatal("Something went wrong while creating the file.", meta);
+		}
+	}
+
+	private void writeDefaultFrontMatter(File file, String title) {
+		var frontMatter = "---\ntitle: " + title + "\n---\n";
+		try {
+			FileWriter writer = new FileWriter(file);
+			writer.write(frontMatter);
+			writer.close();
+		} catch (Exception e) {
+			var meta = new HashMap<String, String>();
+			meta.put("originalError", e.getMessage());
+			Logger.getSharedInstance().fatal("Something went wrong while writing the front matter.", meta);
+
+			// delete the file if it was created
+			if(file.exists()) { file.delete(); }
 		}
 	}
 }
