@@ -2,7 +2,7 @@ package com.trulyao.spawn.views;
 
 import com.trulyao.spawn.views.components.Layout;
 
-import javafx.scene.layout.AnchorPane;
+import javafx.scene.control.SplitPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
@@ -16,7 +16,7 @@ public class MainView {
 		this.mainStage = mainStage;
 	}
 	
-	public AnchorPane render() {
+	public SplitPane render() {
 		var text = new Text("Hello, world!");
 		pane.getChildren().add(text);
 

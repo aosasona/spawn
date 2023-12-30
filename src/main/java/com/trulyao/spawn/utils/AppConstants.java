@@ -7,8 +7,6 @@ final public class AppConstants {
     public static final String APP_VERSION = "0.0.1";
     public static final String APP_AUTHOR = "Ayodeji Osasona";
     public static final String APP_AUTHOR_EMAIL = "ayodeji@trulyao.dev";
-    public static final int HEIGHT = 768;
-    public static final int WIDTH = 1200;
 
     public enum PathKey {
         DATA_DIR,

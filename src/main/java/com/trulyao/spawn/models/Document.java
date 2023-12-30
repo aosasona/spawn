@@ -21,7 +21,7 @@ import org.commonmark.renderer.html.HtmlRenderer;
 import com.trulyao.spawn.utils.AppConstants;
 import com.trulyao.spawn.utils.Logger;
 
-// TODO: create new container class to hold a list of documents - this will have methods attached for things like searching, filtering etc
+// TODO: create new container class as a nested class to hold a list of documents - this will have methods attached for things like searching, filtering etc
 // TODO: include lastModifiedAt and createdAt in the document model
 public final class Document {
 	private String name;
@@ -60,22 +60,22 @@ public final class Document {
 		this.rawContent = rawContent;
 	}
 
-	public static List<Document> getAll() throws IOException {
-		List<Document> recentDocuments = new ArrayList<Document>();
+	public static DocumentsContainer getAll() throws IOException {
+		DocumentsContainer documents = new DocumentsContainer();
 		String dataDir = AppConstants.getPath(AppConstants.PathKey.DATA_DIR);
 
 		Files.walk(Paths.get(dataDir)).forEach(filePath -> {
 			if (Files.isRegularFile(filePath) && filePath.toString().endsWith(".md")) {
 				try {
 					Document item = Document.toDocument(filePath);
-					recentDocuments.add(item);
+					documents.append(item);
 				} catch (IOException e) {
 					Logger.getSharedInstance().error("Could not read file: " + filePath.toString());
 				}
 			}
 		});
 
-		return recentDocuments;
+		return documents;
 	}
 
 	private static Document toDocument(Path fullPath) throws IOException {

@@ -2,6 +2,7 @@ package com.trulyao.spawn.controllers;
 
 import java.io.File;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 
@@ -11,6 +12,7 @@ import com.trulyao.spawn.utils.exceptions.ExceptionHandler;
 import javafx.stage.Stage;
 
 import com.trulyao.spawn.models.Document;
+import com.trulyao.spawn.models.DocumentsContainer;
 import com.trulyao.spawn.utils.AppConstants;
 import com.trulyao.spawn.utils.Common;
 import com.trulyao.spawn.utils.Logger;
@@ -20,6 +22,10 @@ public class SidebarController {
 
 	public SidebarController(Stage mainStage) {
 		this.mainStage = mainStage;
+	}
+
+	public DocumentsContainer getDocuments() throws IOException {
+		return Document.getAll();
 	}
 
 	public void handleException(Exception e) {

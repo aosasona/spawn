@@ -7,7 +7,7 @@ import com.trulyao.spawn.views.MainView;
 
 import javafx.application.Application;
 import javafx.scene.Scene;
-import javafx.scene.layout.Pane;
+import javafx.scene.control.SplitPane;
 import javafx.stage.Stage;
 
 public class Main extends Application {
@@ -17,7 +17,7 @@ public class Main extends Application {
     public void start(Stage stage) {
         try {
             this.mainStage = stage;
-            Pane root = new MainView(this.mainStage).render();
+            SplitPane root = new MainView(this.mainStage).render();
             stage.setScene(new Scene(root));
             this.setStageProperties();
             this.mainStage.show();
@@ -27,11 +27,12 @@ public class Main extends Application {
     }
 
     private void setStageProperties() {
-        this.mainStage.setTitle("Spawn");
-        this.mainStage.centerOnScreen();
-        this.mainStage.setHeight(AppConstants.HEIGHT);
-        this.mainStage.setWidth(AppConstants.WIDTH);
-        this.mainStage.setResizable(false);
+        mainStage.setTitle("Spawn");
+        mainStage.centerOnScreen();
+        mainStage.setHeight(768);
+        mainStage.setWidth(1280);
+        mainStage.setMinHeight(768);
+        mainStage.setMinWidth(1280);
         Logger.getSharedInstance().debug("Set stage properties.");
     }
 

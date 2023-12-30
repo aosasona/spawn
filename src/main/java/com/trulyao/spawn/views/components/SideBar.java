@@ -4,10 +4,13 @@ import java.util.Date;
 import java.util.Optional;
 
 import com.trulyao.spawn.controllers.SidebarController;
-import com.trulyao.spawn.utils.AppConstants;
+import com.trulyao.spawn.models.Document;
+import com.trulyao.spawn.models.DocumentsContainer;
 
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
@@ -18,14 +21,19 @@ public class SideBar {
 	private VBox pane;
 	private TextInputDialog newFileDialog;
 
+	// This is useful to keep track of the documents so we can search and filter and all without having to reach into the file system over and over
+	private DocumentsContainer documentsContainer;
+
+	private ObservableList<Document> documents;
+
 	private final SidebarController controller;
 
-	public SideBar(SidebarController controller) {
+	public SideBar(SidebarController sideBarController) {
 		this.pane = new VBox();
 		this.newFileDialog = new TextInputDialog();
 		this.newFileDialog.setTitle("New file");
 		this.newFileDialog.setHeaderText("Create a new file");
-		this.controller = controller;
+		this.controller = sideBarController;
 	}
 
 	public VBox getPane() {
@@ -35,16 +43,25 @@ public class SideBar {
 
 	private void initialize() {
 		this.handleSizing();
+		this.loadDocuments();
 
 		HBox header = this.makeHeader();
 		pane.getChildren().add(header);
 	}
 
+	private void loadDocuments() {
+		try {
+			this.documentsContainer = this.controller.getDocuments();
+			this.documents = FXCollections.observableArrayList(this.documentsContainer.getDocuments());
+		} catch (Exception e) {
+			controller.handleException(e);
+		}
+	}
+
 	private void handleSizing() {
-		final double width = AppConstants.WIDTH * 0.2;
-		pane.setMinSize(width, AppConstants.HEIGHT);
-		pane.setMaxSize(width, AppConstants.HEIGHT);
-		pane.setPrefSize(width, AppConstants.HEIGHT);
+		pane.setMinWidth(256);
+		pane.setMaxWidth(352);
+		pane.setPrefWidth(256);
 		pane.setStyle("-fx-border-color: #e4e4e4;");
 	}
 
@@ -64,6 +81,13 @@ public class SideBar {
 
 		header.getChildren().addAll(searchField, newFileButton);
 		return header;
+	}
+
+	private ScrollPane makeFileList() {
+		ScrollPane fileList = new ScrollPane();
+		fileList.setFitToWidth(true);
+		fileList.setFitToHeight(true);
+		return fileList;
 	}
 
 	private EventHandler<ActionEvent> handleNewFile() {
@@ -86,6 +110,9 @@ public class SideBar {
 
 					// Handle user input
 					Optional<String> value = dialog.showAndWait();
+					if (!value.isPresent()) {
+						return;
+					}
 					controller.handleNewFile(value.get());
 				} catch (Exception e) {
 					controller.handleException(e);
