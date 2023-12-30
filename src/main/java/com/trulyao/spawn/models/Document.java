@@ -7,6 +7,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -21,19 +23,19 @@ import org.commonmark.renderer.html.HtmlRenderer;
 import com.trulyao.spawn.utils.AppConstants;
 import com.trulyao.spawn.utils.Logger;
 
-// TODO: create new container class as a nested class to hold a list of documents - this will have methods attached for things like searching, filtering etc
-// TODO: include lastModifiedAt and createdAt in the document model
 public final class Document {
 	private String name;
 	private String path;
-	private String rawContent;
-	private Optional<String> title;
-	private Optional<String> htmlContent;
-	private Map<String, List<String>> metadata;
+	private String rawContent = "";
+	private Optional<String> title = Optional.empty();
+	private Optional<String> htmlContent = Optional.empty();
+	private Map<String, List<String>> metadata = new HashMap<String, List<String>>();
+	private Optional<Date> lastModifiedAt = Optional.empty();
 
-	public Document(String name, String path) {
-		this.name = name;
-		this.path = path;
+	public Document(Path path) {
+		this.name = path.getFileName().toString();
+		this.path = path.toString();
+		this.lastModifiedAt = Optional.of(new Date(path.toFile().lastModified()));
 	}
 
 	public String getName() {
@@ -48,12 +50,24 @@ public final class Document {
 		return this.title;
 	}
 
-	public String getHtmlContent() {
-		return this.htmlContent.orElse("");
+	public Optional<String> getHtmlContent() {
+		return this.htmlContent;
+	}
+
+	public String getRawContent() {
+		if (this.rawContent == null) {
+			return "";
+		}
+
+		return this.rawContent;
 	}
 
 	public Map<String, List<String>> getMetadata() {
 		return this.metadata;
+	}
+
+	public Optional<Date> getLastModifiedAt() {
+		return this.lastModifiedAt;
 	}
 
 	public void setRawContent(String rawContent) {
@@ -61,25 +75,27 @@ public final class Document {
 	}
 
 	public static DocumentsContainer getAll() throws IOException {
-		DocumentsContainer documents = new DocumentsContainer();
+		List<Document> documents = new ArrayList<Document>();
 		String dataDir = AppConstants.getPath(AppConstants.PathKey.DATA_DIR);
 
 		Files.walk(Paths.get(dataDir)).forEach(filePath -> {
 			if (Files.isRegularFile(filePath) && filePath.toString().endsWith(".md")) {
 				try {
 					Document item = Document.toDocument(filePath);
-					documents.append(item);
-				} catch (IOException e) {
-					Logger.getSharedInstance().error("Could not read file: " + filePath.toString());
+					documents.add(item);
+				} catch (Exception e) {
+					var meta = new HashMap<String, String>();
+					meta.put("originalError", e.getMessage());
+					Logger.getSharedInstance().error("Failed to process file: " + filePath.toString(), meta);
 				}
 			}
 		});
 
-		return documents;
+		return new DocumentsContainer(documents);
 	}
 
 	private static Document toDocument(Path fullPath) throws IOException {
-		Document document = new Document(fullPath.getFileName().toString(), fullPath.toString());
+		Document document = new Document(fullPath);
 		document.setRawContent(Document.readFile(fullPath.toString()));
 		document.parse(false);
 		return document;

@@ -7,6 +7,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
+// TODO: main controller to handle selected/current document
 public class MainView {
 	private HBox pane;
 	private Stage mainStage;

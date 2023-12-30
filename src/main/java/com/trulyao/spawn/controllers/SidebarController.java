@@ -9,6 +9,8 @@ import java.util.List;
 import com.trulyao.spawn.utils.exceptions.AppException;
 import com.trulyao.spawn.utils.exceptions.ExceptionHandler;
 
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.stage.Stage;
 
 import com.trulyao.spawn.models.Document;
@@ -19,13 +21,35 @@ import com.trulyao.spawn.utils.Logger;
 
 public class SidebarController {
 	private Stage mainStage;
+	private DocumentsContainer documents;
+	private ObservableList<Document> observableList;
 
 	public SidebarController(Stage mainStage) {
 		this.mainStage = mainStage;
 	}
 
-	public DocumentsContainer getDocuments() throws IOException {
-		return Document.getAll();
+	public ObservableList<Document> getObservableArraylist() {
+		// Lazy load the documents the first time it is requested
+		if (this.documents == null) {
+			this.documents = this.getDocuments();
+		}
+
+		if (this.observableList == null || this.observableList.isEmpty()) {
+			this.observableList = FXCollections.observableArrayList(documents.getDocuments());
+		}
+		return this.observableList;
+	}
+
+	private DocumentsContainer getDocuments() {
+		try {
+			return Document.getAll();
+		} catch(IOException e) {
+			var meta = new HashMap<String, String>();
+			meta.put("originalError", e.getMessage());
+
+			Logger.getSharedInstance().fatal("Something went wrong while getting the documents.", meta);
+			return new DocumentsContainer();
+		}
 	}
 
 	public void handleException(Exception e) {
@@ -42,6 +66,17 @@ public class SidebarController {
 
 		this.createFileOnDisk(fullPath, title);
 		return fullPath;
+	}
+
+	public void handleSearch(String query) {
+		List<Document> result = documents.search(query);
+
+		// If the query is blank, show all documents instead
+		if(query.isBlank()) {
+			this.observableList.setAll(documents.getDocuments());
+			return;
+		}
+		this.observableList.setAll(result);
 	}
 
 	private Boolean fileAlreadyExists(String fullPath) {
