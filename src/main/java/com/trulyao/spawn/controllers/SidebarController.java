@@ -40,18 +40,6 @@ public class SidebarController {
 		return this.observableList;
 	}
 
-	private DocumentsContainer getDocuments() {
-		try {
-			return Document.getAll();
-		} catch(IOException e) {
-			var meta = new HashMap<String, String>();
-			meta.put("originalError", e.getMessage());
-
-			Logger.getSharedInstance().fatal("Something went wrong while getting the documents.", meta);
-			return new DocumentsContainer();
-		}
-	}
-
 	public void handleException(Exception e) {
 		ExceptionHandler.handle(this.mainStage, e);
 	}
@@ -79,6 +67,24 @@ public class SidebarController {
 		this.observableList.setAll(result);
 	}
 
+	public void reloadDocuments() {
+		this.documents = this.getDocuments();
+		this.observableList.setAll(documents.getDocuments());
+	}
+
+	private DocumentsContainer getDocuments() {
+		try {
+			return Document.getAll();
+		} catch(IOException e) {
+			var meta = new HashMap<String, String>();
+			meta.put("originalError", e.getMessage());
+
+			Logger.getSharedInstance().fatal("Something went wrong while getting the documents.", meta);
+			return new DocumentsContainer();
+		}
+	}
+
+
 	private Boolean fileAlreadyExists(String fullPath) {
 		File file = new File(fullPath);
 		return file.exists();
@@ -100,6 +106,13 @@ public class SidebarController {
 				Logger.getSharedInstance().fatal("Could not create the file.");
 			}
 			this.writeDefaultFrontMatter(file, title);
+
+			// Append the new file to the observable list and lazily reload the document container
+			// We could also just reload the document container, but that would be less efficient
+			Document document = Document.toDocument(file.toPath());
+			this.documents.append(document);
+			this.documents.toSortedList();
+			this.observableList.setAll(documents.getDocuments());
 		} catch (Exception e) {
 			var meta = new HashMap<String, String>();
 			meta.put("originalError", e.getMessage());

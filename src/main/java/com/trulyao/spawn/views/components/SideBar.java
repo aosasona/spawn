@@ -3,6 +3,9 @@ package com.trulyao.spawn.views.components;
 import java.util.Date;
 import java.util.Optional;
 
+import org.kordamp.ikonli.ionicons4.Ionicons4IOS;
+import org.kordamp.ikonli.javafx.FontIcon;
+
 import com.trulyao.spawn.controllers.SidebarController;
 import com.trulyao.spawn.models.Document;
 
@@ -79,7 +82,6 @@ public class SideBar {
 		return this.fileList;
 	}
 
-
 	private HBox makeHeader() {
 		HBox header = new HBox();
 		header.setMaxHeight(30);
@@ -92,12 +94,23 @@ public class SideBar {
 		searchField.textProperty().addListener((observable, oldValue, newValue) -> controller.handleSearch(newValue)); // Handle change events in the search field for a responsive search
 		HBox.setHgrow(searchField, Priority.ALWAYS); // This is needed to make sure that the search field grows or shrinks as the pane is resized
 
-		Button newFileButton = new Button("New file");
-		newFileButton.setPrefHeight(30);
-		newFileButton.setOnAction(this.handleNewFile());
+		IconButton newFileButton = new IconButton(Ionicons4IOS.ADD, this.handleNewFile(), 22);
+		newFileButton.setTooltip(new Tooltip("Create a new file"));
 
-		header.getChildren().addAll(searchField, newFileButton);
+		IconButton reloadButton = new IconButton(Ionicons4IOS.REFRESH, this.handleReload());
+		reloadButton.setTooltip(new Tooltip("Reload documents"));
+
+		header.getChildren().addAll(searchField, reloadButton, newFileButton);
 		return header;
+	}
+
+	private EventHandler<ActionEvent> handleReload() {
+		return new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent event) {
+				controller.reloadDocuments();
+			}
+		};
 	}
 
 	private EventHandler<ActionEvent> handleNewFile() {

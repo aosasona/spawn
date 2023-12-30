@@ -94,11 +94,15 @@ public final class Document {
 		return new DocumentsContainer(documents);
 	}
 
-	private static Document toDocument(Path fullPath) throws IOException {
+	public static Document toDocument(Path fullPath) throws IOException {
 		Document document = new Document(fullPath);
 		document.setRawContent(Document.readFile(fullPath.toString()));
 		document.parse(false);
 		return document;
+	}
+
+	public static Document toDocument(String fullPath) throws IOException {
+		return Document.toDocument(Paths.get(fullPath));
 	}
 
 	private static String readFile(String path) throws IOException {
