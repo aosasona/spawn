@@ -3,14 +3,23 @@ package com.trulyao.spawn.controllers;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Optional;
 
 import com.trulyao.spawn.utils.exceptions.AppException;
 import com.trulyao.spawn.utils.exceptions.ExceptionHandler;
 
+import javafx.beans.binding.Bindings;
+import javafx.beans.binding.BooleanBinding;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
+import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.TextInputDialog;
 import javafx.stage.Stage;
 
 import com.trulyao.spawn.models.Document;
@@ -32,10 +41,12 @@ public class SidebarController {
 		// Lazy load the documents the first time it is requested
 		if (this.documents == null) {
 			this.documents = this.getDocuments();
+			Logger.getSharedInstance().debug("Loaded documents - first load");
 		}
 
 		if (this.observableList == null || this.observableList.isEmpty()) {
 			this.observableList = FXCollections.observableArrayList(documents.getDocuments());
+			Logger.getSharedInstance().debug("Loaded observable list - this should ideally happen only once");
 		}
 		return this.observableList;
 	}
@@ -67,9 +78,46 @@ public class SidebarController {
 		this.observableList.setAll(result);
 	}
 
-	public void reloadDocuments() {
+	private void reloadDocuments() {
 		this.documents = this.getDocuments();
 		this.observableList.setAll(documents.getDocuments());
+	}
+
+	public EventHandler<ActionEvent> handleReload() {
+		return new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent event) {
+				reloadDocuments();
+			}
+		};
+	}
+
+	public EventHandler<ActionEvent> handleCreateNewFile(TextInputDialog dialog) {
+		return new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent event) {
+				try {
+					String defaultFileName = "Untitled " + new Date().toString();
+					dialog.setContentText("Enter a name for the new file:");
+					dialog.getEditor().setText(defaultFileName);
+
+					// Disable button to enforce user input
+					Button okButton = (Button) dialog.getDialogPane().lookupButton(ButtonType.OK);
+					var editor = dialog.getEditor();
+					BooleanBinding disableButton = Bindings.createBooleanBinding(() -> editor.getText().trim().isEmpty(), editor.textProperty());
+					okButton.disableProperty().bind(disableButton);
+
+					// Handle user input
+					Optional<String> value = dialog.showAndWait();
+					if (!value.isPresent()) {
+						return;
+					}
+					handleNewFile(value.get());
+				} catch (Exception e) {
+					handleException(e);
+				}
+			}
+		};
 	}
 
 	private DocumentsContainer getDocuments() {

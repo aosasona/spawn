@@ -1,6 +1,5 @@
 package com.trulyao.spawn.application;
 
-import com.trulyao.spawn.utils.AppConstants;
 import com.trulyao.spawn.utils.Logger;
 import com.trulyao.spawn.utils.exceptions.ExceptionHandler;
 import com.trulyao.spawn.views.MainView;
@@ -16,6 +15,7 @@ public class Main extends Application {
     @Override
     public void start(Stage stage) {
         try {
+            Logger.getSharedInstance().debug("Starting Spawn...");
             this.mainStage = stage;
             SplitPane root = new MainView(this.mainStage).render();
             stage.setScene(new Scene(root));

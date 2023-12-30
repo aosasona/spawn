@@ -6,7 +6,6 @@ import javafx.stage.Stage;
 import javafx.scene.control.SplitPane;
 import javafx.scene.layout.*;
 
-// TODO: switch to SplitPane
 public class Layout {
 	private SplitPane layout;
 	private Stage mainStage;
@@ -28,6 +27,7 @@ public class Layout {
 	private Pane makeSidebar() {
 		SidebarController sidebarController = new SidebarController(mainStage);
 		Pane sidebar = new SideBar(sidebarController).getPane();
+
 		return sidebar;
 	}
 

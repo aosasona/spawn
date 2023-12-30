@@ -1,20 +1,12 @@
 package com.trulyao.spawn.views.components;
 
-import java.util.Date;
-import java.util.Optional;
 
 import org.kordamp.ikonli.ionicons4.Ionicons4IOS;
-import org.kordamp.ikonli.javafx.FontIcon;
 
 import com.trulyao.spawn.controllers.SidebarController;
 import com.trulyao.spawn.models.Document;
+import com.trulyao.spawn.utils.Logger;
 
-import javafx.beans.binding.Bindings;
-import javafx.beans.binding.BooleanBinding;
-import javafx.beans.property.SimpleListProperty;
-import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
@@ -94,53 +86,18 @@ public class SideBar {
 		searchField.textProperty().addListener((observable, oldValue, newValue) -> controller.handleSearch(newValue)); // Handle change events in the search field for a responsive search
 		HBox.setHgrow(searchField, Priority.ALWAYS); // This is needed to make sure that the search field grows or shrinks as the pane is resized
 
-		IconButton newFileButton = new IconButton(Ionicons4IOS.ADD, this.handleNewFile(), 22);
+		IconButton newFileButton = new IconButton(Ionicons4IOS.ADD, controller.handleCreateNewFile(this.newFileDialog), 22);
 		newFileButton.setTooltip(new Tooltip("Create a new file"));
+		Logger.getSharedInstance().info("New file button created");
 
-		IconButton reloadButton = new IconButton(Ionicons4IOS.REFRESH, this.handleReload());
+		IconButton reloadButton = new IconButton(Ionicons4IOS.REFRESH, controller.handleReload());
 		reloadButton.setTooltip(new Tooltip("Reload documents"));
+		Logger.getSharedInstance().info("Reload button created");
 
 		header.getChildren().addAll(searchField, reloadButton, newFileButton);
+		Logger.getSharedInstance().info("All items added to header");
+
 		return header;
 	}
 
-	private EventHandler<ActionEvent> handleReload() {
-		return new EventHandler<ActionEvent>() {
-			@Override
-			public void handle(ActionEvent event) {
-				controller.reloadDocuments();
-			}
-		};
-	}
-
-	private EventHandler<ActionEvent> handleNewFile() {
-		var dialog = this.newFileDialog;
-		var controller = this.controller;
-
-		return new EventHandler<ActionEvent>() {
-			@Override
-			public void handle(ActionEvent event) {
-				try {
-					String defaultFileName = "Untitled " + new Date().toString();
-					dialog.setContentText("Enter a name for the new file:");
-					dialog.getEditor().setText(defaultFileName);
-
-					// Disable button to enforce user input
-					Button okButton = (Button) dialog.getDialogPane().lookupButton(ButtonType.OK);
-					var editor = dialog.getEditor();
-					BooleanBinding disableButton = Bindings.createBooleanBinding(() -> editor.getText().trim().isEmpty(), editor.textProperty());
-					okButton.disableProperty().bind(disableButton);
-
-					// Handle user input
-					Optional<String> value = dialog.showAndWait();
-					if (!value.isPresent()) {
-						return;
-					}
-					controller.handleNewFile(value.get());
-				} catch (Exception e) {
-					controller.handleException(e);
-				}
-			}
-		};
-	}
 }
