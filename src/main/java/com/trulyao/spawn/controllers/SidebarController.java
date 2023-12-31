@@ -17,9 +17,11 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.TextInputDialog;
+import javafx.scene.control.Alert.AlertType;
 import javafx.stage.Stage;
 
 import com.trulyao.spawn.models.Document;
@@ -81,6 +83,7 @@ public class SidebarController {
 	private void reloadDocuments() {
 		this.documents = this.getDocuments();
 		this.observableList.setAll(documents.getDocuments());
+		Logger.getSharedInstance().debug("Reloaded documents.");
 	}
 
 	public EventHandler<ActionEvent> handleReload() {
@@ -118,6 +121,53 @@ public class SidebarController {
 				}
 			}
 		};
+	}
+
+	public void openInFinder(Document targetDocument) {
+		try {
+			if (targetDocument == null) { return; }
+			String fullPath = targetDocument.getPath();
+			String currentRuntime = System.getProperty("os.name").toLowerCase();
+
+			var meta = new HashMap<String, String>();
+			meta.put("fileName", targetDocument.getName());
+			meta.put("currentRuntime", currentRuntime);
+			Logger.getSharedInstance().info("Opening file in default file manager.", meta);
+
+			switch (Common.getOperatingSystem()) {
+				case Common.OperatingSystem.MAC -> new ProcessBuilder("open", "-R", fullPath).start();
+				case Common.OperatingSystem.WINDOWS -> new ProcessBuilder("explorer.exe", "/select,", fullPath).start();
+				default -> new ProcessBuilder("xdg-open", fullPath).start();
+			}
+		} catch (Exception e) {
+			handleException(e);
+		}
+	}
+
+	public void deleteDocument(Document targetDocument) {
+		try {
+			if (targetDocument == null) { return; }
+
+			Logger.getSharedInstance().info("Requesting to delete file: " + targetDocument.getName());
+
+			Alert alert = new Alert(AlertType.CONFIRMATION);
+			alert.setTitle("Delete file");
+			alert.setHeaderText("Confirm deletion");
+			alert.setContentText("Are you sure you want to delete " + targetDocument.getName() + "?");
+
+			Optional<ButtonType> result = alert.showAndWait();
+			if (result.isPresent() && result.get() == ButtonType.OK) {
+				if (!targetDocument.delete()) {
+					Logger.getSharedInstance().error("Failed to delete file: " + targetDocument.getName());
+					return;
+				}
+				this.reloadDocuments();
+			} else {
+				return;
+			}
+		} catch (Exception e) {
+			handleException(e);
+		}
 	}
 
 	private DocumentsContainer getDocuments() {

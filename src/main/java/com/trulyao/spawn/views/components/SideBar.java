@@ -1,10 +1,13 @@
 package com.trulyao.spawn.views.components;
 
 
+import java.util.Optional;
+
 import org.kordamp.ikonli.ionicons4.Ionicons4IOS;
 
 import com.trulyao.spawn.controllers.SidebarController;
 import com.trulyao.spawn.models.Document;
+import com.trulyao.spawn.utils.Common;
 import com.trulyao.spawn.utils.Logger;
 
 import javafx.geometry.Insets;
@@ -52,8 +55,25 @@ public class SideBar {
 		this.newFileDialog.setHeaderText("Create a new file");
 	}
 
+	private ContextMenu makeFileListContextMenu() {
+		ContextMenu contextMenu = new ContextMenu();
+
+		MenuItem deleteMenuItem = new MenuItem("Delete");
+		deleteMenuItem.setOnAction(event -> controller.deleteDocument(fileList.getSelectionModel().getSelectedItem()));
+		contextMenu.getItems().add(deleteMenuItem);
+
+		Boolean isMacOS = Common.getOperatingSystem() == Common.OperatingSystem.MAC;
+		MenuItem openInFinder = new MenuItem("Open in " + (isMacOS ? "Finder" : "Explorer"));
+		openInFinder.setOnAction(event -> controller.openInFinder(fileList.getSelectionModel().getSelectedItem()));
+		contextMenu.getItems().add(openInFinder);
+
+		return contextMenu;
+	}
+
 
 	private ListView<Document> makeFileList() {
+		this.fileList.setContextMenu(this.makeFileListContextMenu());
+
 		this.fileList.setCellFactory(new Callback<ListView<Document>,ListCell<Document>>() {
 			@Override
 			public ListCell<Document> call(ListView<Document> list) {
@@ -68,6 +88,13 @@ public class SideBar {
 						}
 					}
 				};
+			}
+		});
+
+		this.fileList.setOnMouseClicked(event -> {
+			if (event.getClickCount() == 2) {
+				Document selectedDocument = fileList.getSelectionModel().getSelectedItem();
+				System.out.println(selectedDocument);
 			}
 		});
 

@@ -2,16 +2,8 @@ package com.trulyao.spawn.models;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.nio.file.*;
+import java.util.*;
 
 import org.commonmark.Extension;
 import org.commonmark.ext.front.matter.YamlFrontMatterExtension;
@@ -72,6 +64,15 @@ public final class Document {
 
 	public void setRawContent(String rawContent) {
 		this.rawContent = rawContent;
+	}
+
+	public Boolean delete() {
+		try {
+			Files.delete(Paths.get(this.path));
+			return true;
+		} catch (IOException e) {
+			return false;
+		}
 	}
 
 	public static DocumentsContainer getAll() throws IOException {

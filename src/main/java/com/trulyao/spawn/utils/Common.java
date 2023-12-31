@@ -1,6 +1,13 @@
 package com.trulyao.spawn.utils;
 
 public class Common {
+	public enum OperatingSystem {
+		WINDOWS,
+		MAC,
+		LINUX,
+		OTHER
+	}
+
 	public static String getHomeDir() {
 		return System.getProperty("user.home");
 	}
@@ -13,5 +20,18 @@ public class Common {
 		.replaceAll("\\s+", "-");
 
 		return result;
+	}
+
+	public static OperatingSystem getOperatingSystem() {
+		String osName = System.getProperty("os.name").toLowerCase();
+		if (osName.contains("windows")) {
+			return OperatingSystem.WINDOWS;
+		} else if (osName.contains("mac")) {
+			return OperatingSystem.MAC;
+		} else if (osName.contains("linux")) {
+			return OperatingSystem.LINUX;
+		} else {
+			return OperatingSystem.OTHER;
+		}
 	}
 }
