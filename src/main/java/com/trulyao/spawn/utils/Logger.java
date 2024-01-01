@@ -118,6 +118,10 @@ public class Logger implements AutoCloseable {
             Objects.requireNonNull(level);
             Objects.requireNonNull(message);
 
+            if (level == LogLevel.DEBUG && System.getenv("DEBUG") == null) {
+                return;
+            }
+
             if (this.fileWriter == null) {
                 this.openLogFile();
             }

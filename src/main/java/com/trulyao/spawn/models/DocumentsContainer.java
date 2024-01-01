@@ -12,7 +12,7 @@ public class DocumentsContainer {
 
 	public DocumentsContainer(List<Document> docs) {
 		this.documents = docs;
-		this.documents.sort((a, b) -> a.getTitle().orElse(a.getName()).compareTo(b.getTitle().orElse(b.getName())));
+		this.toSortedList();
 	}
 
 	public List<Document> getDocuments() {
@@ -24,7 +24,7 @@ public class DocumentsContainer {
 	}
 
 	public void toSortedList() {
-		this.documents.sort((a, b) -> a.getTitle().orElse(a.getName()).compareTo(b.getTitle().orElse(b.getName())));
+		this.documents.sort((a, b) -> b.getTitle().orElse(b.getName()).compareTo(a.getTitle().orElse(a.getName())));
 	}
 
 	public void append(Document document) {

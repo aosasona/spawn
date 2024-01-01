@@ -1,7 +1,5 @@
 package com.trulyao.spawn.views;
 
-import javax.swing.Icon;
-
 import org.kordamp.ikonli.ionicons4.Ionicons4IOS;
 
 import com.trulyao.spawn.controllers.DocumentController;
@@ -23,11 +21,15 @@ import javafx.scene.text.TextAlignment;
 
 public class DocumentView {
 	private DocumentController controller;
-	
+
 	private VBox pane;
 
 	private Boolean isPreviewMode = false;
 	private final int HEADER_HEIGHT = 55;
+	private final String WEBVIEW_CSS = """
+		body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; line-height: 1.42857143;}
+		blockquote { color: #1a1a1a; padding: 6px 8px; margin: 0 0 20px; font-size: 14px; border-left: 4px solid #eee; background-color: #f5f5f5; }
+		""";
 
 	public DocumentView(DocumentController documentController) {
 		this.controller = documentController;
@@ -54,11 +56,18 @@ public class DocumentView {
 		VBox.setVgrow(editorArea, Priority.ALWAYS);
 
 		if (this.isPreviewMode) {
+			controller.reloadHtmlBody();
+
 			WebView webView = new WebView();
+			webView.setContextMenuEnabled(false);
+			VBox.setVgrow(webView, Priority.ALWAYS);
+			HBox.setHgrow(webView, Priority.ALWAYS);
+
 			WebEngine webEngine = webView.getEngine();
 			var optContent = this.controller.getMainController().getCurrentDocument().get().getHtmlContent();
 			String content = optContent.isPresent() ? optContent.get() : "";
 			webEngine.loadContent(content);
+			webEngine.setUserStyleSheetLocation("data:text/css," + WEBVIEW_CSS);
 			editorArea.getChildren().addAll(webView);
 		} else {
 			TextArea editor = new TextArea();
@@ -92,13 +101,18 @@ public class DocumentView {
 		// justify to the end i.e place all items on the right
 		header.setAlignment(Pos.CENTER_RIGHT);
 
-		// IconButton previewButton = new IconButton(this.isPreviewMode ? Ionicons4IOS.CODE : Ionicons4IOS.EYE);
+		IconButton previewButton = new IconButton(this.isPreviewMode ? Ionicons4IOS.CODE : Ionicons4IOS.EYE);
+		previewButton.setTooltip(new Tooltip("Toggle preview mode"));
+		previewButton.setOnAction((event) -> {
+			this.isPreviewMode = !this.isPreviewMode;
+			this.hotReload().reload();
+		});
 
 		IconButton saveButton = new IconButton(Ionicons4IOS.SAVE);
-		saveButton.setOnAction(this.controller.handleSave());
 		saveButton.setTooltip(new Tooltip("Save document"));
+		saveButton.setOnAction(this.controller.handleSave());
 
-		header.getChildren().addAll(saveButton);
+		header.getChildren().addAll(previewButton, saveButton);
 
 		return header;
 	}

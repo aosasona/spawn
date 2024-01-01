@@ -56,6 +56,7 @@ public class SideBar {
 		this.newFileDialog.setHeaderText("Create a new file");
 	}
 
+	// TODO: add rename to context menu
 	private ContextMenu makeFileListContextMenu() {
 		ContextMenu contextMenu = new ContextMenu();
 

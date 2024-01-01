@@ -41,6 +41,15 @@ public class DocumentController {
 		};
 	}
 
+	public void reloadHtmlBody() {
+		var document = this.mainController.getCurrentDocument();
+		if (document.isEmpty()) { return; }
+
+		var doc = document.get();
+		Logger.getSharedInstance().debug("Reloading HTML body");
+		doc.loadBody();
+	}
+
 	@FunctionalInterface
 	public interface DocumentHotReloader {
 		void reload();

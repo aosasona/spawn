@@ -89,11 +89,7 @@ public final class Document {
 
 	public String getMetaAsString() {
 		String metadata = "---\n";
-		if (this.title.isPresent()) {
-			metadata += "title: " + this.title.get() + "\n";
-		} else {
-			metadata += "title: " + this.getName() + "\n";
-		}
+		metadata += "title: " + this.getTitle().orElse(this.getName()) + "\n";
 		metadata += "---\n";
 		return metadata;
 	}
@@ -185,12 +181,12 @@ public final class Document {
 	private void parseMeta() {
 		Parser parser = Document.makeParser();
 		YamlFrontMatterVisitor visitor = new YamlFrontMatterVisitor();
-		Node node = parser.parse(this.getMetaAsString());
+		Node node = parser.parse(this.rawContent);
 		node.accept(visitor);
 
 		// Parse the YAML front matter
 		Map<String, List<String>> data = visitor.getData();
-		if (data.containsKey("title") && data.get("title").size() > 0) {
+		if (data.containsKey("title") && !data.get("title").isEmpty()) {
 			this.title = Optional.of(data.get("title").get(0));
 		} else {
 			this.title = Optional.empty();
