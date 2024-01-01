@@ -36,6 +36,7 @@ public class DocumentView {
 		this.controller.subscribe(this.hotReload());
 	}
 
+	// This is mostly used for initial rendering, i.e when the app is first loaded
 	public VBox render() {
 		if (this.controller.getMainController().getCurrentDocument().isEmpty()) {
 			this.pane = DocumentView.makeEmptyDocumentView();
@@ -48,7 +49,7 @@ public class DocumentView {
 
 	private void loadDocumentIntoView() {
 		this.pane = new VBox();
-		this.pane.getChildren().addAll(this.makeHeader(), this.makeEditorArea());
+		this.pane.getChildren().setAll(this.makeHeader(), this.makeEditorArea());
 	}
 
 	private VBox makeEditorArea() {
@@ -139,9 +140,12 @@ public class DocumentView {
 			@Override
 			public void reload() {
 				Logger.getSharedInstance().debug("Reloading document view");
+				if (controller.getMainController().getCurrentDocument().isEmpty()) {
+					pane.getChildren().setAll(DocumentView.makeEmptyDocumentView());
+					return;
+				}
 				pane.getChildren().setAll(makeHeader(), makeEditorArea());
 			}
 		};
 	}
-
 }

@@ -32,11 +32,14 @@ import com.trulyao.spawn.utils.Logger;
 
 public class SidebarController {
 	private Stage mainStage;
+	private MainController mainController;
+
 	private DocumentsContainer documents;
 	private ObservableList<Document> observableList;
 
-	public SidebarController(Stage mainStage) {
+	public SidebarController(Stage mainStage, MainController mainController) {
 		this.mainStage = mainStage;
+		this.mainController = mainController;
 	}
 
 	public ObservableList<Document> getObservableArraylist() {
@@ -160,6 +163,11 @@ public class SidebarController {
 				if (!targetDocument.delete()) {
 					Logger.getSharedInstance().error("Failed to delete file: " + targetDocument.getName());
 					return;
+				}
+				// If the deleted file was the current document, clear the editor
+				if (this.mainController.getCurrentDocument().isPresent() && this.mainController.getCurrentDocument().get().equals(targetDocument)) {
+					Logger.getSharedInstance().info("Deleted file was the current document, clearing editor.");
+					this.mainController.removeCurrentDocument();
 				}
 				this.reloadDocuments();
 			} else {

@@ -24,7 +24,7 @@ public class DocumentsContainer {
 	}
 
 	public void toSortedList() {
-		this.documents.sort((a, b) -> b.getTitle().orElse(b.getName()).compareTo(a.getTitle().orElse(a.getName())));
+		this.documents.sort((a, b) -> a.getTitle().orElse(a.getName()).toLowerCase().compareTo(b.getTitle().orElse(b.getName()).toLowerCase()));
 	}
 
 	public void append(Document document) {

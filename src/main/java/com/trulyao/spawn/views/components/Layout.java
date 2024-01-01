@@ -29,7 +29,7 @@ public class Layout {
 	}
 
 	private Pane makeSidebar() {
-		SidebarController sidebarController = new SidebarController(mainStage);
+		SidebarController sidebarController = new SidebarController(mainStage, this.mainController);
 		Pane sidebar = new SideBar(sidebarController, this.mainController).getPane();
 
 		return sidebar;

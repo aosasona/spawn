@@ -3,6 +3,7 @@ package com.trulyao.spawn.controllers;
 import java.util.Optional;
 
 import com.trulyao.spawn.models.Document;
+import com.trulyao.spawn.utils.Logger;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
@@ -34,6 +35,12 @@ public class MainController {
 		}
 
 		this.documents.set(0, document);
+	}
+
+	public void removeCurrentDocument() {
+		if (this.documents.isEmpty()) { return; }
+		Logger.getSharedInstance().debug("Removing current document from main controller");
+		this.documents.remove(0);
 	}
 
 	public void subscribe(ListChangeListener<Document> listener) {
