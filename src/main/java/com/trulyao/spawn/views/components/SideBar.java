@@ -1,10 +1,9 @@
 package com.trulyao.spawn.views.components;
 
 
-import java.util.Optional;
-
 import org.kordamp.ikonli.ionicons4.Ionicons4IOS;
 
+import com.trulyao.spawn.controllers.MainController;
 import com.trulyao.spawn.controllers.SidebarController;
 import com.trulyao.spawn.models.Document;
 import com.trulyao.spawn.utils.Common;
@@ -20,11 +19,13 @@ public class SideBar {
 	private TextInputDialog newFileDialog;
 	private ListView<Document> fileList;
 
+	private final MainController mainController;
 	private final SidebarController controller;
 
-	public SideBar(SidebarController sideBarController) {
+	public SideBar(SidebarController sideBarController, MainController mainController) {
 		this.pane = new VBox();
 		this.controller = sideBarController;
+		this.mainController = mainController;
 		this.makeNewFileDialog();
 		this.fileList = new ListView<>(controller.getObservableArraylist());
 	}
@@ -94,7 +95,7 @@ public class SideBar {
 		this.fileList.setOnMouseClicked(event -> {
 			if (event.getClickCount() == 2) {
 				Document selectedDocument = fileList.getSelectionModel().getSelectedItem();
-				System.out.println(selectedDocument);
+				this.mainController.setCurrentDocument(selectedDocument);
 			}
 		});
 

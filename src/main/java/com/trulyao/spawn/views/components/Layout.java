@@ -1,5 +1,6 @@
 package com.trulyao.spawn.views.components;
 
+import com.trulyao.spawn.controllers.MainController;
 import com.trulyao.spawn.controllers.SidebarController;
 
 import javafx.stage.Stage;
@@ -10,9 +11,12 @@ public class Layout {
 	private SplitPane layout;
 	private Stage mainStage;
 
-	public Layout(Stage mainStage) {
+	private final MainController mainController;
+
+	public Layout(Stage mainStage, MainController mainController) {
 		this.layout = new SplitPane();
 		this.mainStage = mainStage;
+		this.mainController = mainController;
 	}
 
 	public SplitPane render(Pane child) {
@@ -26,7 +30,7 @@ public class Layout {
 
 	private Pane makeSidebar() {
 		SidebarController sidebarController = new SidebarController(mainStage);
-		Pane sidebar = new SideBar(sidebarController).getPane();
+		Pane sidebar = new SideBar(sidebarController, this.mainController).getPane();
 
 		return sidebar;
 	}

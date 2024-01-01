@@ -1,27 +1,26 @@
 package com.trulyao.spawn.views;
 
+import com.trulyao.spawn.controllers.DocumentController;
+import com.trulyao.spawn.controllers.MainController;
 import com.trulyao.spawn.views.components.Layout;
 
 import javafx.scene.control.SplitPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
-// TODO: main controller to handle selected/current document
 public class MainView {
-	private HBox pane;
 	private Stage mainStage;
+	private MainController controller;
 
 	public MainView(Stage mainStage) {
-		this.pane = new HBox();
 		this.mainStage = mainStage;
+		this.controller = new MainController();
 	}
 	
 	public SplitPane render() {
-		var text = new Text("Hello, world!");
-		pane.getChildren().add(text);
+		var documentController = new DocumentController(this.controller);
+		var documentView = new DocumentView(documentController);
 
-		Layout layout = new Layout(mainStage);
-		return layout.render(pane);
+		Layout layout = new Layout(mainStage, this.controller);
+		return layout.render(documentView.render());
 	}
 }
