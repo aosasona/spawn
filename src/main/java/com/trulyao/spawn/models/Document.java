@@ -36,21 +36,22 @@ public final class Document {
 			this.name, this.path, this.title.orElse("null"), this.lastModifiedAt);
 	}
 
-	public String getName() {
+	// Get the filename with .md extension
+	public String getFileName() {
 		return this.name;
 	}
 
+	// Get the absolute path to the file
 	public String getPath() {
 		return this.path;
 	}
 
+	// Get the title of the document - `getFileName` should probably be used as an alternative if this function returns empty
 	public Optional<String> getTitle() {
 		return this.title;
 	}
 
-	/**
-	 * Get the parsed HTML version of the document's body
-	 */
+	// Get the parsed HTML version of the document's body
 	public Optional<String> getHtmlContent() {
 		return this.htmlContent;
 	}
@@ -71,10 +72,12 @@ public final class Document {
 		return this.lastModifiedAt;
 	}
 
+	// Update the whole content of the document (including frontmatter)
 	public void setRawContent(String rawContent) {
 		this.rawContent = rawContent;
 	}
 
+	// Set the content of the document without the frontmatter
 	public void setBody(String body) {
 		this.rawContent = this.getMetaAsString() + body;
 	}
@@ -85,14 +88,14 @@ public final class Document {
 	}
 
 	public static String makeMetaString(String title) {
-		String metadata = "---\n";
-		metadata += "title: " + title + "\n";
-		metadata += "---\n";
+		String metadata = "---" + System.lineSeparator();
+		metadata += "title: " + title + System.lineSeparator();
+		metadata += "---" + System.lineSeparator();
 		return metadata;
 	}
 
 	public String getMetaAsString() {
-		return Document.makeMetaString(this.getTitle().orElse(this.getName()));
+		return Document.makeMetaString(this.getTitle().orElse(this.getFileName()));
 	}
 
 	public String getBodyAsString() {
@@ -108,7 +111,7 @@ public final class Document {
 			Files.write(Paths.get(this.path), content.getBytes());
 			return true;
 		} catch (Exception e) {
-			var meta = new HashMap<String, String>();
+			HashMap<String, String> meta = new HashMap<>();
 			meta.put("originalError", e.getMessage());
 			Logger.getSharedInstance().error("Failed to save document", meta);
 			return false;
@@ -134,7 +137,7 @@ public final class Document {
 					Document item = Document.toDocument(filePath);
 					documents.add(item);
 				} catch (Exception e) {
-					var meta = new HashMap<String, String>();
+					HashMap<String, String> meta = new HashMap<>();
 					meta.put("originalError", e.getMessage());
 					Logger.getSharedInstance().error("Failed to process file: " + filePath.toString(), meta);
 				}
@@ -157,17 +160,18 @@ public final class Document {
 
 	
 	private static String readFile(String path) throws IOException {
-		BufferedReader reader = Files.newBufferedReader(Paths.get(path));
+		BufferedReader bufferedReader = Files.newBufferedReader(Paths.get(path));
 		StringBuilder stringBuilder = new StringBuilder();
 
-		String line = reader.readLine();
+		// Read document line-by-line; due to differences between Windows and other systems, we cannot just throw a `\n` in there
+		String line = bufferedReader.readLine();
 		while (line != null) {
 			stringBuilder.append(line);
 			stringBuilder.append(System.lineSeparator());
-			line = reader.readLine();
+			line = bufferedReader.readLine();
 		}
+		bufferedReader.close();
 
-		reader.close();
 		return stringBuilder.toString();
 	}
 	

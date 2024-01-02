@@ -17,8 +17,8 @@ public class MainView {
 	
 	// Construct the main view and its dependencies
 	public SplitPane buildView() {
-		var documentController = new DocumentController(this.controller);
-		var documentView = new DocumentView(documentController);
+		DocumentController documentController = new DocumentController(this.controller);
+		DocumentView documentView = new DocumentView(documentController);
 
 		Layout layout = new Layout(mainStage, this.controller);
 		return layout.buildView(documentView.buildView());

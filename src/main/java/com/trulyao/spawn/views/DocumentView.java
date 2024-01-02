@@ -1,5 +1,7 @@
 package com.trulyao.spawn.views;
 
+import java.util.Optional;
+
 import org.kordamp.ikonli.ionicons4.Ionicons4IOS;
 
 import com.trulyao.spawn.controllers.DocumentController;
@@ -61,7 +63,7 @@ public class DocumentView {
 		HBox.setHgrow(webView, Priority.ALWAYS);
 
 		WebEngine webEngine = webView.getEngine();
-		var optContent = this.controller.getMainController().getCurrentDocument().get().getHtmlContent();
+		Optional<String> optContent = this.controller.getMainController().getCurrentDocument().get().getHtmlContent();
 		String content = optContent.isPresent() ? optContent.get() : "";
 		webEngine.loadContent(content);
 		webEngine.setUserStyleSheetLocation("data:text/css," + WEBVIEW_CSS);

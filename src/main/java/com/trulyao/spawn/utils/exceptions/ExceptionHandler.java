@@ -24,7 +24,7 @@ final public class ExceptionHandler {
     }
 
     private static void showErrorAlert(String title, String header, String content) {
-        var alert = new Alert(Alert.AlertType.ERROR);
+        Alert alert = new Alert(Alert.AlertType.ERROR);
         alert.setTitle(title);
         alert.setHeaderText(header);
         alert.setContentText(content);

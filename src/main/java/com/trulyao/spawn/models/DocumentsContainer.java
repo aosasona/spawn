@@ -24,7 +24,11 @@ public class DocumentsContainer {
 	}
 
 	public void toSortedList() {
-		this.documents.sort((a, b) -> a.getTitle().orElse(a.getName()).toLowerCase().compareTo(b.getTitle().orElse(b.getName()).toLowerCase()));
+		this.documents.sort((a, b) -> {
+			String titleA = a.getTitle().orElse(a.getFileName()).toLowerCase();
+			String titleB = b.getTitle().orElse(b.getFileName()).toLowerCase();
+			return titleA.compareTo(titleB);
+		});
 	}
 
 	public void append(Document document) {
@@ -35,12 +39,9 @@ public class DocumentsContainer {
 		this.documents.remove(document);
 	}
 
-	public List<Document> search(String originalQuery) {
-		var query = originalQuery.toLowerCase();
-
-		if (query.isBlank()) {
-			return this.documents;
-		}
+	public List<Document> search(String searchQuery) {
+		String query = searchQuery.toLowerCase().trim();
+		if (query.isBlank()) { return this.documents; }
 
 		return documents
 		.stream()
@@ -55,13 +56,13 @@ public class DocumentsContainer {
 
 	public void print() {
 		System.out.println("DocumentsContainer:");
-		System.out.println("  documents:");
+		System.out.println("\tdocuments:");
 		for (Document document : this.documents) {
-			System.out.println("    - name: " + document.getName());
-			System.out.println("      path: " + document.getPath());
-			System.out.println("      title: " + document.getTitle().orElse(""));
-			System.out.println("      htmlContent: " + document.getHtmlContent());
-			System.out.println("      metadata: " + document.getMetadata());
+			System.out.println("\t\t- name: " + document.getFileName());
+			System.out.println("\t\tpath: " + document.getPath());
+			System.out.println("\t\ttitle: " + document.getTitle().orElse("[null]"));
+			System.out.println("\t\thtmlContent: " + document.getHtmlContent());
+			System.out.println("\t\tmetadata: " + document.getMetadata());
 		}
 	}
 }

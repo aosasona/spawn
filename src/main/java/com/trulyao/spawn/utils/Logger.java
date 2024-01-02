@@ -6,7 +6,7 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Objects;
+import java.util.Map.Entry;
 
 import org.controlsfx.control.Notifications;
 
@@ -129,7 +129,7 @@ public class Logger implements AutoCloseable {
 
             StringBuilder metaString = new StringBuilder();
             if (metadata != null) {
-                for (var entry : metadata.entrySet()) {
+                for (Entry<String, String> entry : metadata.entrySet()) {
                     metaString.append(String.format(" %s=%s", entry.getKey(), entry.getValue()));
                 }
             }

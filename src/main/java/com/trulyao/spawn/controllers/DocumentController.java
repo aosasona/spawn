@@ -40,7 +40,7 @@ public class DocumentController {
 					return;
 				}
 
-				String title = doc.getTitle().isPresent() ? doc.getTitle().get() : doc.getName();
+				String title = doc.getTitle().isPresent() ? doc.getTitle().get() : doc.getFileName();
 				Notifications.create()
 					.title("Document saved")
 					.text(title + " has been saved")

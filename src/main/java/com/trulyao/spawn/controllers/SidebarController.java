@@ -23,7 +23,6 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TextInputDialog;
 import javafx.scene.control.Alert.AlertType;
-import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
 import com.trulyao.spawn.models.Document;
@@ -108,7 +107,7 @@ public class SidebarController {
 					Boolean documentStillExists = documents
 					.getDocuments()
 					.stream()
-					.filter(document -> document.getName().equals(mainController.getCurrentDocument().get().getName()))
+					.filter(document -> document.getFileName().equals(mainController.getCurrentDocument().get().getFileName()))
 					.findFirst()
 					.isPresent();
 
@@ -202,7 +201,7 @@ public class SidebarController {
 			String currentRuntime = System.getProperty("os.name").toLowerCase();
 
 			HashMap<String, String> meta = new HashMap<>();
-			meta.put("fileName", targetDocument.getName());
+			meta.put("fileName", targetDocument.getFileName());
 			meta.put("currentRuntime", currentRuntime);
 			Logger.getSharedInstance().info("Opening file in default file manager.", meta);
 
@@ -220,17 +219,17 @@ public class SidebarController {
 		try {
 			if (targetDocument == null) { return; }
 
-			Logger.getSharedInstance().info("Requesting to delete file: " + targetDocument.getName());
+			Logger.getSharedInstance().info("Requesting to delete file: " + targetDocument.getFileName());
 
 			Alert alert = new Alert(AlertType.CONFIRMATION);
 			alert.setTitle("Delete file");
 			alert.setHeaderText("Confirm deletion");
-			alert.setContentText("Are you sure you want to delete " + targetDocument.getName() + "?");
+			alert.setContentText("Are you sure you want to delete " + targetDocument.getFileName() + "?");
 
 			Optional<ButtonType> result = alert.showAndWait();
 			if (result.isPresent() && result.get() == ButtonType.OK) {
 				if (!targetDocument.delete()) {
-					Logger.getSharedInstance().error("Failed to delete file: " + targetDocument.getName());
+					Logger.getSharedInstance().error("Failed to delete file: " + targetDocument.getFileName());
 					return;
 				}
 				// If the deleted file was the current document, clear the editor
@@ -250,11 +249,11 @@ public class SidebarController {
 	private Optional<String> promptForNewTitle(Document document) {
 		TextInputDialog renameDocumentDialog = new TextInputDialog();
 		renameDocumentDialog.setTitle("Rename file");
-		renameDocumentDialog.setHeaderText("Rename " + document.getTitle());
+		renameDocumentDialog.setHeaderText("Rename " + document.getTitle().orElse("file"));
 		renameDocumentDialog.setContentText("Enter a new name for the file:");
 
 		TextField editor = renameDocumentDialog.getEditor();
-		editor.setText(document.getTitle().orElse(document.getName()));
+		editor.setText(document.getTitle().orElse(document.getFileName()));
 
 		// Disable button to enforce user input
 		Button okButton = (Button) renameDocumentDialog.getDialogPane().lookupButton(ButtonType.OK);
