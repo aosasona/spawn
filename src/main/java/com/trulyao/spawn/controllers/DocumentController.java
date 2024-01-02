@@ -1,7 +1,10 @@
 package com.trulyao.spawn.controllers;
 
+import java.util.Optional;
+
 import org.controlsfx.control.Notifications;
 
+import com.trulyao.spawn.models.Document;
 import com.trulyao.spawn.utils.Logger;
 
 import javafx.event.ActionEvent;
@@ -9,6 +12,11 @@ import javafx.event.EventHandler;
 
 public class DocumentController {
 	private MainController mainController;
+
+	@FunctionalInterface
+	public interface DocumentHotReloader {
+		void reload();
+	}
 
 	public DocumentController(MainController mainController) {
 		this.mainController = mainController;
@@ -19,13 +27,13 @@ public class DocumentController {
 	}
 
 	public EventHandler<ActionEvent> handleSave() {
-		var document = this.mainController.getCurrentDocument();
+		Optional<Document> document = this.mainController.getCurrentDocument();
 		return new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent event) {
 				if (document.isEmpty()) { return; }
 
-				var doc = document.get();
+				Document doc = document.get();
 				Logger.getSharedInstance().debug("Saving document");
 				if(!doc.save()) {
 					Logger.getSharedInstance().error("Failed to save document");
@@ -42,17 +50,12 @@ public class DocumentController {
 	}
 
 	public void reloadHtmlBody() {
-		var document = this.mainController.getCurrentDocument();
+		Optional<Document> document = this.mainController.getCurrentDocument();
 		if (document.isEmpty()) { return; }
 
-		var doc = document.get();
+		Document doc = document.get();
 		Logger.getSharedInstance().debug("Reloading HTML body");
 		doc.loadBody();
-	}
-
-	@FunctionalInterface
-	public interface DocumentHotReloader {
-		void reload();
 	}
 
 	public void subscribe(DocumentHotReloader hotReloader) {

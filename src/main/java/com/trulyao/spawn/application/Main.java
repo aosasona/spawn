@@ -17,7 +17,7 @@ public class Main extends Application {
         try {
             Logger.getSharedInstance().debug("Starting Spawn...");
             this.mainStage = stage;
-            SplitPane root = new MainView(this.mainStage).render();
+            SplitPane root = new MainView(this.mainStage).buildView();
             stage.setScene(new Scene(root));
             this.setStageProperties();
             this.mainStage.show();

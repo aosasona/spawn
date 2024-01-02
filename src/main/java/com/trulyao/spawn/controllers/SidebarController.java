@@ -20,8 +20,10 @@ import javafx.event.EventHandler;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.TextField;
 import javafx.scene.control.TextInputDialog;
 import javafx.scene.control.Alert.AlertType;
+import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
 import com.trulyao.spawn.models.Document;
@@ -46,13 +48,15 @@ public class SidebarController {
 		// Lazy load the documents the first time it is requested
 		if (this.documents == null) {
 			this.documents = this.getDocuments();
-			Logger.getSharedInstance().debug("Loaded documents - first load");
+			Logger.getSharedInstance().debug("Loaded documents - first load, this log message should never show up again");
 		}
 
+		// Create a new observable list so that we can update the sidebar view in realtime
 		if (this.observableList == null || this.observableList.isEmpty()) {
 			this.observableList = FXCollections.observableArrayList(documents.getDocuments());
 			Logger.getSharedInstance().debug("Loaded observable list - this should ideally happen only once");
 		}
+
 		return this.observableList;
 	}
 
@@ -62,7 +66,7 @@ public class SidebarController {
 
 	public String handleNewFile(String title) throws AppException {
 		String filename = Common.slugify(title) + ".md";
-		String fullPath = AppConstants.makeFilename(filename);
+		String fullPath = AppConstants.getFullFilePath(filename);
 
 		if (this.fileAlreadyExists(fullPath)) {
 			throw new AppException("A file with that name already exists.");
@@ -80,6 +84,7 @@ public class SidebarController {
 			this.observableList.setAll(documents.getDocuments());
 			return;
 		}
+
 		this.observableList.setAll(result);
 	}
 
@@ -96,7 +101,9 @@ public class SidebarController {
 				reloadDocuments();
 				
 				// If the current document is not in the list of documents, clear the editor
-				// Since objects are compared by reference, we need to compare the current document with the documents in the list by using the document name
+				// 
+				// Since objects are compared by reference, it will always be false since we will have "different" objects in memory if we try to do a direct comparison
+				// we need to compare the current document with the documents in the list by using the document name
 				if (mainController.getCurrentDocument().isPresent()) {
 					Boolean documentStillExists = documents
 					.getDocuments()
@@ -105,10 +112,10 @@ public class SidebarController {
 					.findFirst()
 					.isPresent();
 
-					if (!documentStillExists) {
-						Logger.getSharedInstance().debug("Current document no longer exists, clearing editor.");
-						mainController.removeCurrentDocument();
-					}
+					if (documentStillExists) { return; }
+
+					Logger.getSharedInstance().debug("Current document no longer exists, clearing the editor state.");
+					mainController.removeCurrentDocument();
 				}
 			}
 		};
@@ -125,7 +132,7 @@ public class SidebarController {
 
 					// Disable button to enforce user input
 					Button okButton = (Button) dialog.getDialogPane().lookupButton(ButtonType.OK);
-					var editor = dialog.getEditor();
+					TextField editor = dialog.getEditor();
 					BooleanBinding disableButton = Bindings.createBooleanBinding(() -> editor.getText().trim().isEmpty(), editor.textProperty());
 					okButton.disableProperty().bind(disableButton);
 
@@ -188,13 +195,13 @@ public class SidebarController {
 		}
 	}
 
-	public void openInFinder(Document targetDocument) {
+	public void openInFileManager(Document targetDocument) {
 		try {
 			if (targetDocument == null) { return; }
 			String fullPath = targetDocument.getPath();
 			String currentRuntime = System.getProperty("os.name").toLowerCase();
 
-			var meta = new HashMap<String, String>();
+			HashMap<String, String> meta = new HashMap<>();
 			meta.put("fileName", targetDocument.getName());
 			meta.put("currentRuntime", currentRuntime);
 			Logger.getSharedInstance().info("Opening file in default file manager.", meta);
@@ -246,7 +253,7 @@ public class SidebarController {
 		renameDocumentDialog.setHeaderText("Rename " + document.getTitle());
 		renameDocumentDialog.setContentText("Enter a new name for the file:");
 
-		var editor = renameDocumentDialog.getEditor();
+		TextField editor = renameDocumentDialog.getEditor();
 		editor.setText(document.getTitle().orElse(document.getName()));
 
 		// Disable button to enforce user input
@@ -263,7 +270,7 @@ public class SidebarController {
 		try {
 			return Document.getAll();
 		} catch(IOException e) {
-			var meta = new HashMap<String, String>();
+			HashMap<String, String> meta = new HashMap<>();
 			meta.put("originalError", e.getMessage());
 
 			Logger.getSharedInstance().fatal("Something went wrong while getting the documents.", meta);
@@ -305,7 +312,7 @@ public class SidebarController {
 			this.documents.toSortedList();
 			this.observableList.setAll(documents.getDocuments());
 		} catch (Exception e) {
-			var meta = new HashMap<String, String>();
+			HashMap<String, String> meta = new HashMap<>();
 			meta.put("originalError", e.getMessage());
 			Logger.getSharedInstance().fatal("Something went wrong while creating the file.", meta);
 		}
@@ -318,7 +325,7 @@ public class SidebarController {
 			writer.write(frontMatter);
 			writer.close();
 		} catch (Exception e) {
-			var meta = new HashMap<String, String>();
+			HashMap<String, String> meta = new HashMap<>();
 			meta.put("originalError", e.getMessage());
 			Logger.getSharedInstance().fatal("Something went wrong while writing the front matter.", meta);
 

@@ -31,7 +31,7 @@ public class SideBar {
 		this.fileList = new ListView<>(controller.getObservableArraylist());
 	}
 
-	public VBox getPane() {
+	public VBox buildView() {
 		this.initialize();
 		return this.pane;
 	}
@@ -70,7 +70,7 @@ public class SideBar {
 
 		Boolean isMacOS = Common.getOperatingSystem() == Common.OperatingSystem.MAC;
 		MenuItem openInFinder = new MenuItem("Open in " + (isMacOS ? "Finder" : "Explorer"));
-		openInFinder.setOnAction(event -> controller.openInFinder(fileList.getSelectionModel().getSelectedItem()));
+		openInFinder.setOnAction(event -> controller.openInFileManager(fileList.getSelectionModel().getSelectedItem()));
 		openInFinder.disableProperty().bind(Bindings.isEmpty(fileList.getSelectionModel().getSelectedItems()));
 
 		contextMenu.getItems().addAll(renameMenuItem, deleteMenuItem, openInFinder);

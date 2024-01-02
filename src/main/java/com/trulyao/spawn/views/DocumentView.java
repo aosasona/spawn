@@ -37,7 +37,7 @@ public class DocumentView {
 	}
 
 	// This is mostly used for initial rendering, i.e when the app is first loaded
-	public VBox render() {
+	public VBox buildView() {
 		if (this.controller.getMainController().getCurrentDocument().isEmpty()) {
 			this.pane = DocumentView.makeEmptyDocumentView();
 			return this.pane;
@@ -49,47 +49,57 @@ public class DocumentView {
 
 	private void loadDocumentIntoView() {
 		this.pane = new VBox();
-		this.pane.getChildren().setAll(this.makeHeader(), this.makeEditorArea());
+		this.pane.getChildren().setAll(this.makeHeader(), this.makeDocumentView());
 	}
 
-	private VBox makeEditorArea() {
-		VBox editorArea = new VBox();
-		VBox.setVgrow(editorArea, Priority.ALWAYS);
+	private void renderPreview(VBox documentView) {
+		controller.reloadHtmlBody();
+
+		WebView webView = new WebView();
+		webView.setContextMenuEnabled(false);
+		VBox.setVgrow(webView, Priority.ALWAYS);
+		HBox.setHgrow(webView, Priority.ALWAYS);
+
+		WebEngine webEngine = webView.getEngine();
+		var optContent = this.controller.getMainController().getCurrentDocument().get().getHtmlContent();
+		String content = optContent.isPresent() ? optContent.get() : "";
+		webEngine.loadContent(content);
+		webEngine.setUserStyleSheetLocation("data:text/css," + WEBVIEW_CSS);
+
+		documentView.getChildren().addAll(webView);
+	}
+
+	private void renderEditor(VBox documentView) {
+		TextArea editor = new TextArea();
+		VBox.setVgrow(editor, Priority.ALWAYS);
+		HBox.setHgrow(editor, Priority.ALWAYS);
+
+		editor.setWrapText(true);
+		String content = "";
+		if (this.controller.getMainController().getCurrentDocument().isPresent()) {
+			content = this.controller.getMainController().getCurrentDocument().get().getBodyAsString();
+		}
+		editor.setText(content);
+		editor.textProperty().addListener((observable, oldValue, newValue) -> {
+			if (this.controller.getMainController().getCurrentDocument().isPresent()) {
+				this.controller.getMainController().getCurrentDocument().get().setBody(newValue);
+			}
+		});
+
+		documentView.getChildren().addAll(editor);
+	}
+
+	private VBox makeDocumentView() {
+		VBox documentView = new VBox();
+		VBox.setVgrow(documentView, Priority.ALWAYS);
 
 		if (this.isPreviewMode) {
-			controller.reloadHtmlBody();
-
-			WebView webView = new WebView();
-			webView.setContextMenuEnabled(false);
-			VBox.setVgrow(webView, Priority.ALWAYS);
-			HBox.setHgrow(webView, Priority.ALWAYS);
-
-			WebEngine webEngine = webView.getEngine();
-			var optContent = this.controller.getMainController().getCurrentDocument().get().getHtmlContent();
-			String content = optContent.isPresent() ? optContent.get() : "";
-			webEngine.loadContent(content);
-			webEngine.setUserStyleSheetLocation("data:text/css," + WEBVIEW_CSS);
-			editorArea.getChildren().addAll(webView);
+			this.renderPreview(documentView);
 		} else {
-			TextArea editor = new TextArea();
-			VBox.setVgrow(editor, Priority.ALWAYS);
-			HBox.setHgrow(editor, Priority.ALWAYS);
-
-			editor.setWrapText(true);
-			String content = "";
-			if (this.controller.getMainController().getCurrentDocument().isPresent()) {
-				content = this.controller.getMainController().getCurrentDocument().get().getBodyAsString();
-			}
-			editor.setText(content);
-			editor.textProperty().addListener((observable, oldValue, newValue) -> {
-				if (this.controller.getMainController().getCurrentDocument().isPresent()) {
-					this.controller.getMainController().getCurrentDocument().get().setBody(newValue);
-				}
-			});
-			editorArea.getChildren().addAll(editor);
+			this.renderEditor(documentView);
 		}
 
-		return editorArea;
+		return documentView;
 	}
 
 	private HBox makeHeader() {
@@ -144,7 +154,7 @@ public class DocumentView {
 					pane.getChildren().setAll(DocumentView.makeEmptyDocumentView());
 					return;
 				}
-				pane.getChildren().setAll(makeHeader(), makeEditorArea());
+				pane.getChildren().setAll(makeHeader(), makeDocumentView());
 			}
 		};
 	}

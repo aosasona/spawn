@@ -19,33 +19,23 @@ public class Layout {
 		this.mainController = mainController;
 	}
 
-	public SplitPane render(Pane child) {
-		layout
-		.getItems()
-		.addAll(this.makeSidebar(), this.makeMainArea(child));
-
+	// Construct the default layout (split pane and sidebar) and render the child view in the right-hand pane
+	public SplitPane buildView(Pane child) {
+		layout.getItems().addAll(this.makeSidebar(), this.makeMainArea(child));
 		layout.setDividerPositions(0.2f, 0.8f);
 		return layout;
 	}
 
 	private Pane makeSidebar() {
 		SidebarController sidebarController = new SidebarController(mainStage, this.mainController);
-		Pane sidebar = new SideBar(sidebarController, this.mainController).getPane();
+		Pane sidebar = new SideBar(sidebarController, this.mainController).buildView();
 
 		return sidebar;
 	}
 
 	private VBox makeMainArea(Pane child) {
 		VBox mainArea = new VBox();
-		mainArea.getChildren().addAll(this.makeHeader(), child);
+		mainArea.getChildren().add(child);
 		return mainArea;
-	}
-
-	private VBox makeHeader() {
-		VBox header = new VBox();
-		header.setMaxHeight(30);
-		header.setSpacing(7.5);
-
-		return header;
 	}
 }

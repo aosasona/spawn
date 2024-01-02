@@ -27,7 +27,7 @@ public class Logger implements AutoCloseable {
 
     // This is private to prevent instantiation outside of the class (singleton)
     Logger() {
-        this.logFilePath = this.getAbsoluteCurrentLogFilename();
+        this.logFilePath = this.getCurrentLogFileFullPath();
     }
 
     @Override
@@ -85,7 +85,7 @@ public class Logger implements AutoCloseable {
         this.log(LogLevel.FATAL, message, null);
     }
 
-    private String getAbsoluteCurrentLogFilename() {
+    private String getCurrentLogFileFullPath() {
         Date now = new Date();
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
         String dateString = dateFormat.format(now);
@@ -119,9 +119,6 @@ public class Logger implements AutoCloseable {
     // Writes log to file and stdout or stderr (as needed)
     private void log(LogLevel level, String message, HashMap<String, String> metadata) {
         try {
-            Objects.requireNonNull(level);
-            Objects.requireNonNull(message);
-
             if (level == LogLevel.DEBUG && System.getenv("DEBUG") == null) {
                 return;
             }
@@ -145,6 +142,7 @@ public class Logger implements AutoCloseable {
 
             this.appendToFile(logMessage + "\n");
 
+            // If we encounter a fatal error, crash and burn instantly and present the user with a message
             if (level == LogLevel.FATAL) {
                 Notifications.create().title("Fatal Error").text(message).showError();
                 System.exit(1);

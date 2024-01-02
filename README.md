@@ -6,6 +6,7 @@ A simple Markdown-based note taking app in JavaFX; a second-year university proj
 - [x] Markdown support
 - [x] Markdown preview
 - [x] File-based; no database required
+- [x] Deep search (searches in all notes)
 
 ## Running
 
