@@ -8,6 +8,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Objects;
 
+import org.controlsfx.control.Notifications;
+
 public class Logger implements AutoCloseable {
 
     enum LogLevel {
@@ -23,6 +25,7 @@ public class Logger implements AutoCloseable {
     private String logFilePath;
     private FileWriter fileWriter;
 
+    // This is private to prevent instantiation outside of the class (singleton)
     Logger() {
         this.logFilePath = this.getAbsoluteCurrentLogFilename();
     }
@@ -34,6 +37,7 @@ public class Logger implements AutoCloseable {
         this.fileWriter.close();
     }
 
+    // This must be used to get an instance of the Logger class, as it is a singleton class - the instance is also lazy-loaded
     public static Logger getSharedInstance() {
         if (instance == null) {
             instance = new Logger();
@@ -140,6 +144,11 @@ public class Logger implements AutoCloseable {
             }
 
             this.appendToFile(logMessage + "\n");
+
+            if (level == LogLevel.FATAL) {
+                Notifications.create().title("Fatal Error").text(message).showError();
+                System.exit(1);
+            }
         } catch (Exception e) {
             System.err.println("Failed to log message: " + e.getMessage());
             System.exit(1); // exit the program to prevent further damage
