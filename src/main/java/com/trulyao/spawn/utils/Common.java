@@ -12,6 +12,10 @@ public class Common {
 		return System.getProperty("user.home");
 	}
 
+	public static String getFullDocumentPathFromFilename(String filename) {
+		return AppConstants.getPath(AppConstants.PathKey.DATA_DIR)	+ "/" + filename;
+	}
+
 	public static String slugify(String text) {
 		String result = text
 		.trim()

@@ -30,23 +30,20 @@ public final class Document {
 		this.lastModifiedAt = Optional.of(new Date(path.toFile().lastModified()));
 	}
 
-	/**
-	 * Get the raw file name
-	 */
+	public String toString() {
+		return String.format(
+			"Document[name=%s , path=%s, title=%s, lastModifiedAt=%s]", 
+			this.name, this.path, this.title.orElse("null"), this.lastModifiedAt);
+	}
+
 	public String getName() {
 		return this.name;
 	}
 
-	/**
-	 * Get the full path to the file
-	 */
 	public String getPath() {
 		return this.path;
 	}
 
-	/**
-	 * Get the title of the document, when this is absent, the name of the file should be used
-	 */
 	public Optional<String> getTitle() {
 		return this.title;
 	}
@@ -87,11 +84,15 @@ public final class Document {
 		return this;
 	}
 
-	public String getMetaAsString() {
+	public static String makeMetaString(String title) {
 		String metadata = "---\n";
-		metadata += "title: " + this.getTitle().orElse(this.getName()) + "\n";
+		metadata += "title: " + title + "\n";
 		metadata += "---\n";
 		return metadata;
+	}
+
+	public String getMetaAsString() {
+		return Document.makeMetaString(this.getTitle().orElse(this.getName()));
 	}
 
 	public String getBodyAsString() {

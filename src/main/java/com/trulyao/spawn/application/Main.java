@@ -31,8 +31,8 @@ public class Main extends Application {
         mainStage.centerOnScreen();
         mainStage.setHeight(768);
         mainStage.setWidth(1280);
-        mainStage.setMinHeight(768);
-        mainStage.setMinWidth(1280);
+        mainStage.setMinHeight(640);
+        mainStage.setMinWidth(1024);
         Logger.getSharedInstance().debug("Set stage properties.");
     }
 

@@ -9,6 +9,7 @@ import com.trulyao.spawn.models.Document;
 import com.trulyao.spawn.utils.Common;
 import com.trulyao.spawn.utils.Logger;
 
+import javafx.beans.binding.Bindings;
 import javafx.geometry.Insets;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
@@ -56,19 +57,23 @@ public class SideBar {
 		this.newFileDialog.setHeaderText("Create a new file");
 	}
 
-	// TODO: add rename to context menu
 	private ContextMenu makeFileListContextMenu() {
 		ContextMenu contextMenu = new ContextMenu();
 
+		MenuItem renameMenuItem = new MenuItem("Rename");
+		renameMenuItem.setOnAction(event -> controller.renameDocument(fileList.getSelectionModel().getSelectedItem()));
+		renameMenuItem.disableProperty().bind(Bindings.isEmpty(fileList.getSelectionModel().getSelectedItems()));
+
 		MenuItem deleteMenuItem = new MenuItem("Delete");
 		deleteMenuItem.setOnAction(event -> controller.deleteDocument(fileList.getSelectionModel().getSelectedItem()));
-		contextMenu.getItems().add(deleteMenuItem);
+		deleteMenuItem.disableProperty().bind(Bindings.isEmpty(fileList.getSelectionModel().getSelectedItems()));
 
 		Boolean isMacOS = Common.getOperatingSystem() == Common.OperatingSystem.MAC;
 		MenuItem openInFinder = new MenuItem("Open in " + (isMacOS ? "Finder" : "Explorer"));
 		openInFinder.setOnAction(event -> controller.openInFinder(fileList.getSelectionModel().getSelectedItem()));
-		contextMenu.getItems().add(openInFinder);
+		openInFinder.disableProperty().bind(Bindings.isEmpty(fileList.getSelectionModel().getSelectedItems()));
 
+		contextMenu.getItems().addAll(renameMenuItem, deleteMenuItem, openInFinder);
 		return contextMenu;
 	}
 

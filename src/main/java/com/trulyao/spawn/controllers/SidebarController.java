@@ -94,6 +94,22 @@ public class SidebarController {
 			@Override
 			public void handle(ActionEvent event) {
 				reloadDocuments();
+				
+				// If the current document is not in the list of documents, clear the editor
+				// Since objects are compared by reference, we need to compare the current document with the documents in the list by using the document name
+				if (mainController.getCurrentDocument().isPresent()) {
+					Boolean documentStillExists = documents
+					.getDocuments()
+					.stream()
+					.filter(document -> document.getName().equals(mainController.getCurrentDocument().get().getName()))
+					.findFirst()
+					.isPresent();
+
+					if (!documentStillExists) {
+						Logger.getSharedInstance().debug("Current document no longer exists, clearing editor.");
+						mainController.removeCurrentDocument();
+					}
+				}
 			}
 		};
 	}
@@ -124,6 +140,52 @@ public class SidebarController {
 				}
 			}
 		};
+	}
+
+	public void renameDocument(Document document) {
+		try {
+			String newTitle = this.promptForNewTitle(document).orElse(null);
+			if (newTitle == null) { return; }
+
+			String newFileName = Common.slugify(newTitle) + ".md";
+			if (this.fileAlreadyExists(Common.getFullDocumentPathFromFilename(newFileName))) {
+				newFileName = Common.slugify(newTitle + " " + new Date().getTime()) + ".md";
+				Logger.getSharedInstance().debug("File with that name already exists, appending timestamp to new filename. New filename: " + newFileName);
+			}
+
+			String fullFilePath = Common.getFullDocumentPathFromFilename(newFileName);
+			this.createDataDirIfNotExists();
+
+			// Create the new file
+			File file = new File(fullFilePath);
+			if (!file.createNewFile()) {
+				Logger.getSharedInstance().error("Could not create the new file.");
+				throw new AppException("Failed to rename the file.");
+			}
+
+			// Write the new file with the new title and the old body
+			FileWriter writer = new FileWriter(file);
+			String content = Document.makeMetaString(newTitle) + document.getBodyAsString();
+			writer.write(content);
+			writer.close();
+
+			// Remove the old file
+			if(!document.delete()) {
+				Logger.getSharedInstance().error("Could not delete the old file.");
+				throw new AppException("Failed to rename the file.");
+			}
+
+			// Handle the case where the renamed file was the current document
+			Document newDocument = Document.toDocument(file.toPath());
+			if (this.mainController.getCurrentDocument().isPresent() && this.mainController.getCurrentDocument().get().equals(document)) {
+				Logger.getSharedInstance().debug("Renamed file was the current document, replacing it with the new document.");
+				this.mainController.setCurrentDocument(newDocument);
+			}
+
+			this.reloadDocuments();
+		} catch (Exception e) {
+			handleException(e);
+		}
 	}
 
 	public void openInFinder(Document targetDocument) {
@@ -178,6 +240,25 @@ public class SidebarController {
 		}
 	}
 
+	private Optional<String> promptForNewTitle(Document document) {
+		TextInputDialog renameDocumentDialog = new TextInputDialog();
+		renameDocumentDialog.setTitle("Rename file");
+		renameDocumentDialog.setHeaderText("Rename " + document.getTitle());
+		renameDocumentDialog.setContentText("Enter a new name for the file:");
+
+		var editor = renameDocumentDialog.getEditor();
+		editor.setText(document.getTitle().orElse(document.getName()));
+
+		// Disable button to enforce user input
+		Button okButton = (Button) renameDocumentDialog.getDialogPane().lookupButton(ButtonType.OK);
+		BooleanBinding disableButton = Bindings.createBooleanBinding(() -> editor.getText().trim().isEmpty(), editor.textProperty());
+		okButton.disableProperty().bind(disableButton);
+
+		// Handle user input
+		Optional<String> value = renameDocumentDialog.showAndWait();
+		return value;
+	}
+
 	private DocumentsContainer getDocuments() {
 		try {
 			return Document.getAll();
@@ -196,16 +277,20 @@ public class SidebarController {
 		return file.exists();
 	}
 
+	private void createDataDirIfNotExists() {
+		// check if the parent directory exists
+		// if it doesn't, create it
+		File baseDir = new File(AppConstants.getPath(AppConstants.PathKey.DATA_DIR));
+		if (!baseDir.exists()) {
+			if(!baseDir.mkdirs()) {
+				Logger.getSharedInstance().fatal("Could not create the data directory.");
+			}
+		}
+	}
+
 	private void createFileOnDisk(String fullPath, String title) {
 		try {
-			// check if the parent directory exists
-			// if it doesn't, create it
-			File baseDir = new File(AppConstants.getPath(AppConstants.PathKey.DATA_DIR));
-			if (!baseDir.exists()) {
-				if(!baseDir.mkdirs()) {
-					Logger.getSharedInstance().fatal("Could not create the data directory.");
-				}
-			}
+			this.createDataDirIfNotExists();
 
 			File file = new File(fullPath);
 			if (!file.createNewFile()) {
@@ -227,7 +312,7 @@ public class SidebarController {
 	}
 
 	private void writeDefaultFrontMatter(File file, String title) {
-		var frontMatter = "---\ntitle: " + title + "\n---\n";
+		String frontMatter = Document.makeMetaString(title);
 		try {
 			FileWriter writer = new FileWriter(file);
 			writer.write(frontMatter);
