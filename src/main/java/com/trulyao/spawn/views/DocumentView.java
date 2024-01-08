@@ -34,7 +34,7 @@ public class DocumentView {
 		this.controller.subscribe(this.hotReload());
 	}
 
-	// This is mostly used for initial rendering, i.e when the app is first loaded
+	// This is mostly used for initial rendering, i.e. when the app is first loaded
 	public VBox buildView() {
 		if (this.controller.getMainController().getCurrentDocument().isEmpty()) {
 			this.pane = DocumentView.makeEmptyDocumentView();
@@ -112,7 +112,7 @@ public class DocumentView {
 		header.setSpacing(7.5);
 		header.setStyle("-fx-border-color: #e4e4e4;");
 		header.setPadding(new Insets(10, 12, 10, 12));
-		// justify to the end i.e place all items on the right
+		// justify to the end i.e. place all items on the right
 		header.setAlignment(Pos.CENTER_RIGHT);
 
 		IconButton previewButton = new IconButton(this.isPreviewMode ? Ionicons4IOS.CODE : Ionicons4IOS.EYE);
@@ -149,16 +149,13 @@ public class DocumentView {
 	}
 
 	private DocumentHotReloader hotReload() {
-		return new DocumentHotReloader() {
-			@Override
-			public void reload() {
-				Logger.getSharedInstance().debug("Reloading document view");
-				if (controller.getMainController().getCurrentDocument().isEmpty()) {
-					pane.getChildren().setAll(DocumentView.makeEmptyDocumentView());
-					return;
-				}
-				pane.getChildren().setAll(makeHeader(), makeDocumentView());
-			}
-		};
+		return () -> {
+            Logger.getSharedInstance().debug("Reloading document view");
+            if (controller.getMainController().getCurrentDocument().isEmpty()) {
+                pane.getChildren().setAll(DocumentView.makeEmptyDocumentView());
+                return;
+            }
+            pane.getChildren().setAll(makeHeader(), makeDocumentView());
+        };
 	}
 }

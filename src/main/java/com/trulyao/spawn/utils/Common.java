@@ -8,11 +8,7 @@ public class Common {
 		OTHER
 	}
 
-	public static String getHomeDir() {
-		return System.getProperty("user.home");
-	}
-
-	public static String getFullDocumentPathFromFilename(String filename) {
+    public static String getFullDocumentPathFromFilename(String filename) {
 		return AppConstants.getPath(AppConstants.PathKey.DATA_DIR)	+ "/" + filename;
 	}
 

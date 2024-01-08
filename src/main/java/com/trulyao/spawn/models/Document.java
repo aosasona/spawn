@@ -21,8 +21,8 @@ public final class Document {
 	private String rawContent = "";
 	private Optional<String> title = Optional.empty();
 	private Optional<String> htmlContent = Optional.empty();
-	private Map<String, List<String>> metadata = new HashMap<String, List<String>>();
-	private Optional<Date> lastModifiedAt;
+	private Map<String, List<String>> metadata = new HashMap<>();
+	private final Optional<Date> lastModifiedAt;
 
 	public Document(Path path) {
 		this.name = path.getFileName().toString();
@@ -68,11 +68,7 @@ public final class Document {
 		return this.metadata;
 	}
 
-	public Optional<Date> getLastModifiedAt() {
-		return this.lastModifiedAt;
-	}
-
-	// Update the whole content of the document (including front matter)
+    // Update the whole content of the document (including front matter)
 	public void setRawContent(String rawContent) {
 		this.rawContent = rawContent;
 	}
@@ -127,7 +123,7 @@ public final class Document {
 	}
 
 	public static DocumentsContainer getAll() throws IOException {
-		List<Document> documents = new ArrayList<Document>();
+		List<Document> documents = new ArrayList<>();
 		String dataDir = AppConstants.getPath(AppConstants.PathKey.DATA_DIR);
 
 		Files.walk(Paths.get(dataDir)).forEach(filePath -> {
@@ -138,7 +134,7 @@ public final class Document {
 				} catch (Exception e) {
 					HashMap<String, String> meta = new HashMap<>();
 					meta.put("originalError", e.getMessage());
-					Logger.getSharedInstance().error("Failed to process file: " + filePath.toString(), meta);
+					Logger.getSharedInstance().error("Failed to process file: " + filePath, meta);
 				}
 			}
 		});
@@ -153,12 +149,8 @@ public final class Document {
 		return document;
 	}
 
-	public static Document toDocument(String fullPath) throws IOException {
-		return Document.toDocument(Paths.get(fullPath));
-	}
 
-
-	private static String readFile(String path) throws IOException {
+    private static String readFile(String path) throws IOException {
 		BufferedReader bufferedReader = Files.newBufferedReader(Paths.get(path));
 		StringBuilder stringBuilder = new StringBuilder();
 
@@ -190,7 +182,7 @@ public final class Document {
 		// Parse the YAML front matter
 		Map<String, List<String>> data = visitor.getData();
 		if (data.containsKey("title") && !data.get("title").isEmpty()) {
-			this.title = Optional.of(data.get("title").get(0));
+			this.title = Optional.of(data.get("title").getFirst());
 		} else {
 			this.title = Optional.empty();
 		}

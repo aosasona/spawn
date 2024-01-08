@@ -3,15 +3,11 @@ package com.trulyao.spawn.utils;
 import java.nio.file.FileSystems;
 
 final public class AppConstants {
-    public static final String APP_NAME = "Spawn";
-    public static final String APP_VERSION = "0.0.1";
-    public static final String APP_AUTHOR = "Ayodeji Osasona";
-    public static final String APP_AUTHOR_EMAIL = "ayodeji@trulyao.dev";
 
     public enum PathKey {
         DATA_DIR,
         LOG_DIR,
-        STORE;
+        STORE
 
     }
     private static final String fileSeparator = FileSystems.getDefault().getSeparator();

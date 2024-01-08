@@ -1,6 +1,6 @@
 # Spawn
 
-A simple Markdown-based note taking app in JavaFX; a second-year university project.
+A simple Markdown-based note-taking app in JavaFX; a second-year university project.
 
 ## Features
 - [x] Markdown support

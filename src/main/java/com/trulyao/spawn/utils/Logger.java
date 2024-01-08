@@ -17,7 +17,7 @@ public class Logger implements AutoCloseable {
         INFO,
         WARNING,
         ERROR,
-        FATAL;
+        FATAL
     }
 
     private static Logger instance;
@@ -25,7 +25,7 @@ public class Logger implements AutoCloseable {
     private String logFilePath;
     private FileWriter fileWriter;
 
-    // This is private to prevent instantiation outside of the class (singleton)
+    // This is private to prevent instantiation outside the class (singleton)
     Logger() {
         this.logFilePath = this.getCurrentLogFileFullPath();
     }

@@ -28,25 +28,24 @@ public class DocumentController {
 
 	public EventHandler<ActionEvent> handleSave() {
 		Optional<Document> document = this.mainController.getCurrentDocument();
-		return new EventHandler<ActionEvent>() {
-			@Override
-			public void handle(ActionEvent event) {
-				if (document.isEmpty()) { return; }
+		return event -> {
+            if (document.isEmpty()) {
+                return;
+            }
 
-				Document doc = document.get();
-				Logger.getSharedInstance().debug("Saving document");
-				if(!doc.save()) {
-					Logger.getSharedInstance().error("Failed to save document");
-					return;
-				}
+            Document doc = document.get();
+            Logger.getSharedInstance().debug("Saving document");
+            if (!doc.save()) {
+                Logger.getSharedInstance().error("Failed to save document");
+                return;
+            }
 
-				String title = doc.getTitle().isPresent() ? doc.getTitle().get() : doc.getFileName();
-				Notifications.create()
-					.title("Document saved")
-					.text(title + " has been saved")
-					.showInformation();
-			}
-		};
+            String title = doc.getTitle().isPresent() ? doc.getTitle().get() : doc.getFileName();
+            Notifications.create()
+                    .title("Document saved")
+                    .text(title + " has been saved")
+                    .showInformation();
+        };
 	}
 
 	public void reloadHtmlBody() {

@@ -93,56 +93,52 @@ public class SidebarController {
 	}
 
 	public EventHandler<ActionEvent> handleReload() {
-		return new EventHandler<ActionEvent>() {
-			@Override
-			public void handle(ActionEvent event) {
-				reloadDocuments();
+		return event -> {
+            reloadDocuments();
 
-				// If the current document is not in the list of documents, clear the editor
-				//
-				// Since objects are compared by reference, it will always be false since we will have "different" objects in memory if we try to do a direct comparison
-				// we need to compare the current document with the documents in the list by using the document name
-				if (mainController.getCurrentDocument().isPresent()) {
-					boolean documentStillExists = documents
-					.getDocuments()
-					.stream()
-					.anyMatch(document -> document.getFileName().equals(mainController.getCurrentDocument().get().getFileName()));
+            // If the current document is not in the list of documents, clear the editor
+            //
+            // Since objects are compared by reference, it will always be false since we will have "different" objects in memory if we try to do a direct comparison
+            // we need to compare the current document with the documents in the list by using the document name
+            if (mainController.getCurrentDocument().isPresent()) {
+                boolean documentStillExists = documents
+                        .getDocuments()
+                        .stream()
+                        .anyMatch(document -> document.getFileName().equals(mainController.getCurrentDocument().get().getFileName()));
 
-					if (documentStillExists) { return; }
+                if (documentStillExists) {
+                    return;
+                }
 
-					Logger.getSharedInstance().debug("Current document no longer exists, clearing the editor state.");
-					mainController.removeCurrentDocument();
-				}
-			}
-		};
+                Logger.getSharedInstance().debug("Current document no longer exists, clearing the editor state.");
+                mainController.removeCurrentDocument();
+            }
+        };
 	}
 
 	public EventHandler<ActionEvent> handleCreateNewFile(TextInputDialog dialog) {
-		return new EventHandler<ActionEvent>() {
-			@Override
-			public void handle(ActionEvent event) {
-				try {
-					String defaultFileName = "Untitled " + new Date().toString();
-					dialog.setContentText("Enter a name for the new file:");
-					dialog.getEditor().setText(defaultFileName);
+		return event -> {
+            try {
+                String defaultFileName = "Untitled " + new Date();
+                dialog.setContentText("Enter a name for the new file:");
+                dialog.getEditor().setText(defaultFileName);
 
-					// Disable button to enforce user input
-					Button okButton = (Button) dialog.getDialogPane().lookupButton(ButtonType.OK);
-					TextField editor = dialog.getEditor();
-					BooleanBinding disableButton = Bindings.createBooleanBinding(() -> editor.getText().trim().isEmpty(), editor.textProperty());
-					okButton.disableProperty().bind(disableButton);
+                // Disable button to enforce user input
+                Button okButton = (Button) dialog.getDialogPane().lookupButton(ButtonType.OK);
+                TextField editor = dialog.getEditor();
+                BooleanBinding disableButton = Bindings.createBooleanBinding(() -> editor.getText().trim().isEmpty(), editor.textProperty());
+                okButton.disableProperty().bind(disableButton);
 
-					// Handle user input
-					Optional<String> value = dialog.showAndWait();
-					if (value.isEmpty()) {
-						return;
-					}
-					handleNewFile(value.get());
-				} catch (Exception e) {
-					handleException(e);
-				}
-			}
-		};
+                // Handle user input
+                Optional<String> value = dialog.showAndWait();
+                if (value.isEmpty()) {
+                    return;
+                }
+                handleNewFile(value.get());
+            } catch (Exception e) {
+                handleException(e);
+            }
+        };
 	}
 
 	public void renameDocument(Document document) {
@@ -235,8 +231,6 @@ public class SidebarController {
 					this.mainController.removeCurrentDocument();
 				}
 				this.reloadDocuments();
-			} else {
-				return;
 			}
 		} catch (Exception e) {
 			handleException(e);

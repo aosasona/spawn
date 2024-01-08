@@ -21,7 +21,7 @@ public class MainController {
 	public Optional<Document> getCurrentDocument() {
 		if (this.documents.isEmpty()) { return Optional.empty(); }
 
-		Document currentDocument = this.documents.get(0);
+		Document currentDocument = this.documents.getFirst();
 		if (currentDocument == null) { return Optional.empty(); }
 
 		return Optional.of(currentDocument);

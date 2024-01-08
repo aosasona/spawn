@@ -81,22 +81,22 @@ public class SideBar {
 	private ListView<Document> makeFileList() {
 		this.fileList.setContextMenu(this.makeFileListContextMenu());
 
-		this.fileList.setCellFactory(new Callback<ListView<Document>,ListCell<Document>>() {
-			@Override
-			public ListCell<Document> call(ListView<Document> list) {
-				return new ListCell<Document>() {
-					@Override
-					protected void updateItem(Document document, boolean empty) {
-						super.updateItem(document, empty);
-						if (document == null || empty) {
-							setText(null);
-						} else {
-							setText(document.getTitle().orElse(""));
-						}
-					}
-				};
-			}
-		});
+		this.fileList.setCellFactory(new Callback<>() {
+            @Override
+            public ListCell<Document> call(ListView<Document> list) {
+                return new ListCell<>() {
+                    @Override
+                    protected void updateItem(Document document, boolean empty) {
+                        super.updateItem(document, empty);
+                        if (document == null || empty) {
+                            setText(null);
+                        } else {
+                            setText(document.getTitle().orElse(""));
+                        }
+                    }
+                };
+            }
+        });
 
 		this.fileList.setOnMouseClicked(event -> {
 			if (event.getClickCount() == 2) {

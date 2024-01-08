@@ -35,11 +35,7 @@ public class DocumentsContainer {
 		this.documents.add(document);
 	}
 
-	public void remove(Document document) {
-		this.documents.remove(document);
-	}
-
-	public List<Document> search(String searchQuery) {
+    public List<Document> search(String searchQuery) {
 		String query = searchQuery.toLowerCase().trim();
 		if (query.isBlank()) { return this.documents; }
 
