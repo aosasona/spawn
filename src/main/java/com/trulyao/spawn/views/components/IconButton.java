@@ -8,10 +8,9 @@ import javafx.event.EventHandler;
 import javafx.scene.control.Button;
 
 public class IconButton extends Button {
-	private int DEFAULT_ICON_SIZE = 16;
-	private int DEFAULT_BUTTON_HEIGHT = 30;
+	private final int DEFAULT_ICON_SIZE = 16;
 
-	public IconButton(Ionicons4IOS iconName) {
+    public IconButton(Ionicons4IOS iconName) {
 		FontIcon icon = new FontIcon(iconName);
 		icon.setIconSize(DEFAULT_ICON_SIZE);
 
@@ -36,7 +35,8 @@ public class IconButton extends Button {
 
 	private void setDefaults(FontIcon icon) {
 		this.setGraphic(icon);
-		this.setPrefHeight(DEFAULT_BUTTON_HEIGHT);
+        int DEFAULT_BUTTON_HEIGHT = 30;
+        this.setPrefHeight(DEFAULT_BUTTON_HEIGHT);
 		this.setStyle("-fx-background-color: transparent;");
 		this.setOnMouseEntered(e -> this.setStyle("-fx-background-color: #e4e4e4;"));
 		this.setOnMouseExited(e -> this.setStyle("-fx-background-color: transparent;"));

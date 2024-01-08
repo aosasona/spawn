@@ -2,6 +2,7 @@ package com.trulyao.spawn.views;
 
 import java.util.Optional;
 
+import com.trulyao.spawn.models.Document;
 import org.kordamp.ikonli.ionicons4.Ionicons4IOS;
 
 import com.trulyao.spawn.controllers.DocumentController;
@@ -22,18 +23,13 @@ import javafx.scene.web.WebEngine;
 import javafx.scene.text.TextAlignment;
 
 public class DocumentView {
-	private DocumentController controller;
+	private final DocumentController controller;
 
 	private VBox pane;
 
 	private Boolean isPreviewMode = false;
-	private final int HEADER_HEIGHT = 55;
-	private final String WEBVIEW_CSS = """
-		body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; line-height: 1.42857143;}
-		blockquote { color: #1a1a1a; padding: 6px 8px; margin: 0 0 20px; font-size: 14px; border-left: 4px solid #eee; background-color: #f5f5f5; }
-		""";
 
-	public DocumentView(DocumentController documentController) {
+    public DocumentView(DocumentController documentController) {
 		this.controller = documentController;
 		this.controller.subscribe(this.hotReload());
 	}
@@ -63,10 +59,14 @@ public class DocumentView {
 		HBox.setHgrow(webView, Priority.ALWAYS);
 
 		WebEngine webEngine = webView.getEngine();
-		Optional<String> optContent = this.controller.getMainController().getCurrentDocument().get().getHtmlContent();
-		String content = optContent.isPresent() ? optContent.get() : "";
+		Optional<String> optContent = this.controller.getMainController().getCurrentDocument().flatMap(Document::getHtmlContent);
+		String content = optContent.orElse("");
 		webEngine.loadContent(content);
-		webEngine.setUserStyleSheetLocation("data:text/css," + WEBVIEW_CSS);
+        String WEBVIEW_CSS = """
+                body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; line-height: 1.42857143;}
+                blockquote { color: #1a1a1a; padding: 6px 8px; margin: 0 0 20px; font-size: 14px; border-left: 4px solid #eee; background-color: #f5f5f5; }
+                """;
+        webEngine.setUserStyleSheetLocation("data:text/css," + WEBVIEW_CSS);
 
 		documentView.getChildren().addAll(webView);
 	}
@@ -107,7 +107,8 @@ public class DocumentView {
 	private HBox makeHeader() {
 		HBox header = new HBox();
 		HBox.setHgrow(header, Priority.ALWAYS);
-		header.setPrefHeight(HEADER_HEIGHT);
+        int HEADER_HEIGHT = 55;
+        header.setPrefHeight(HEADER_HEIGHT);
 		header.setSpacing(7.5);
 		header.setStyle("-fx-border-color: #e4e4e4;");
 		header.setPadding(new Insets(10, 12, 10, 12));

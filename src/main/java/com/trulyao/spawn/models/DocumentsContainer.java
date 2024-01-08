@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class DocumentsContainer {
-	private List<Document> documents;
+	private final List<Document> documents;
 
 	public DocumentsContainer() {
 		this.documents = List.of();
@@ -47,8 +47,8 @@ public class DocumentsContainer {
 		.stream()
 		.filter(document -> {
 			// technically, if we are looking at the raw content, we already have all the searchable data we need (the raw content also contains the title)
-			return (document.getTitle().isPresent() && document.getTitle().get().toLowerCase().contains(query)) 
-			|| document.getRawContent().toLowerCase().contains(query) 
+			return (document.getTitle().isPresent() && document.getTitle().get().toLowerCase().contains(query))
+			|| document.getRawContent().toLowerCase().contains(query)
 			|| document.getPath().toLowerCase().contains(query);
 		})
 		.collect(Collectors.toList());

@@ -8,8 +8,8 @@ import javafx.scene.control.SplitPane;
 import javafx.scene.layout.*;
 
 public class Layout {
-	private SplitPane layout;
-	private Stage mainStage;
+	private final SplitPane layout;
+	private final Stage mainStage;
 
 	private final MainController mainController;
 
@@ -28,9 +28,7 @@ public class Layout {
 
 	private Pane makeSidebar() {
 		SidebarController sidebarController = new SidebarController(mainStage, this.mainController);
-		Pane sidebar = new SideBar(sidebarController, this.mainController).buildView();
-
-		return sidebar;
+        return new SideBar(sidebarController, this.mainController).buildView();
 	}
 
 	private VBox makeMainArea(Pane child) {

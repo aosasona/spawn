@@ -17,13 +17,11 @@ public class Common {
 	}
 
 	public static String slugify(String text) {
-		String result = text
+        return text
 		.trim()
 		.toLowerCase()
 		.replaceAll("[^a-z0-9\\s]", "")
 		.replaceAll("\\s+", "-");
-
-		return result;
 	}
 
 	public static OperatingSystem getOperatingSystem() {

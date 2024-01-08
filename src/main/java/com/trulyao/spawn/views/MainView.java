@@ -8,13 +8,13 @@ import javafx.scene.control.SplitPane;
 import javafx.stage.Stage;
 
 public class MainView {
-	private Stage mainStage;
-	private MainController controller = new MainController();
+	private final Stage mainStage;
+	private final MainController controller = new MainController();
 
 	public MainView(Stage mainStage) {
 		this.mainStage = mainStage;
 	}
-	
+
 	// Construct the main view and its dependencies
 	public SplitPane buildView() {
 		DocumentController documentController = new DocumentController(this.controller);

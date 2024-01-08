@@ -12,7 +12,7 @@ import javafx.collections.ObservableList;
 public class MainController {
 	// We want to be able to subscribe to changes in the current document, but since the Observable class has been deprecated,
 	// we'll have to use ObservableList that only allows for one item
-	private ObservableList<Document> documents;
+	private final ObservableList<Document> documents;
 
 	public MainController() {
 		this.documents = FXCollections.observableArrayList();
@@ -40,7 +40,7 @@ public class MainController {
 	public void removeCurrentDocument() {
 		if (this.documents.isEmpty()) { return; }
 		Logger.getSharedInstance().debug("Removing current document from main controller");
-		this.documents.remove(0);
+		this.documents.removeFirst();
 	}
 
 	public void subscribe(ListChangeListener<Document> listener) {

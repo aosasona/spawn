@@ -16,13 +16,13 @@ import com.trulyao.spawn.utils.AppConstants;
 import com.trulyao.spawn.utils.Logger;
 
 public final class Document {
-	private String name;
-	private String path;
+	private final String name;
+	private final String path;
 	private String rawContent = "";
 	private Optional<String> title = Optional.empty();
 	private Optional<String> htmlContent = Optional.empty();
 	private Map<String, List<String>> metadata = new HashMap<String, List<String>>();
-	private Optional<Date> lastModifiedAt = Optional.empty();
+	private Optional<Date> lastModifiedAt;
 
 	public Document(Path path) {
 		this.name = path.getFileName().toString();
@@ -32,7 +32,7 @@ public final class Document {
 
 	public String toString() {
 		return String.format(
-			"Document[name=%s , path=%s, title=%s, lastModifiedAt=%s]", 
+			"Document[name=%s , path=%s, title=%s, lastModifiedAt=%s]",
 			this.name, this.path, this.title.orElse("null"), this.lastModifiedAt);
 	}
 
@@ -72,12 +72,12 @@ public final class Document {
 		return this.lastModifiedAt;
 	}
 
-	// Update the whole content of the document (including frontmatter)
+	// Update the whole content of the document (including front matter)
 	public void setRawContent(String rawContent) {
 		this.rawContent = rawContent;
 	}
 
-	// Set the content of the document without the frontmatter
+	// Set the content of the document without the front matter
 	public void setBody(String body) {
 		this.rawContent = this.getMetaAsString() + body;
 	}
@@ -100,8 +100,7 @@ public final class Document {
 
 	public String getBodyAsString() {
 		String meta = this.getMetaAsString();
-		String body = this.rawContent.replace(meta, "");
-		return body;
+        return this.rawContent.replace(meta, "");
 	}
 
 	public Boolean save() {
@@ -158,7 +157,7 @@ public final class Document {
 		return Document.toDocument(Paths.get(fullPath));
 	}
 
-	
+
 	private static String readFile(String path) throws IOException {
 		BufferedReader bufferedReader = Files.newBufferedReader(Paths.get(path));
 		StringBuilder stringBuilder = new StringBuilder();
@@ -174,14 +173,13 @@ public final class Document {
 
 		return stringBuilder.toString();
 	}
-	
+
 	private static Parser makeParser() {
-		List<Extension> extensions = Arrays.asList(YamlFrontMatterExtension.create());
-		Parser parser = Parser.builder().extensions(extensions).build();
-		return parser;
+		List<Extension> extensions = List.of(YamlFrontMatterExtension.create());
+        return Parser.builder().extensions(extensions).build();
 	}
 
-	// Since this parser is used in two different places, we need to be able to parse the body or not because of performance reasons 
+	// Since this parser is used in two different places, we need to be able to parse the body or not because of performance reasons
 	// plus we don't need the body when we're just listing the documents
 	private void parseMeta() {
 		Parser parser = Document.makeParser();

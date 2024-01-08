@@ -11,7 +11,7 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 
 public class DocumentController {
-	private MainController mainController;
+	private final MainController mainController;
 
 	@FunctionalInterface
 	public interface DocumentHotReloader {

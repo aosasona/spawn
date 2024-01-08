@@ -32,8 +32,8 @@ import com.trulyao.spawn.utils.Common;
 import com.trulyao.spawn.utils.Logger;
 
 public class SidebarController {
-	private Stage mainStage;
-	private MainController mainController;
+	private final Stage mainStage;
+	private final MainController mainController;
 
 	private DocumentsContainer documents;
 	private ObservableList<Document> observableList;
@@ -63,7 +63,7 @@ public class SidebarController {
 		ExceptionHandler.handle(this.mainStage, e);
 	}
 
-	public String handleNewFile(String title) throws AppException {
+	public void handleNewFile(String title) throws AppException {
 		String filename = Common.slugify(title) + ".md";
 		String fullPath = AppConstants.getFullFilePath(filename);
 
@@ -72,8 +72,7 @@ public class SidebarController {
 		}
 
 		this.createFileOnDisk(fullPath, title);
-		return fullPath;
-	}
+    }
 
 	public void handleSearch(String query) {
 		List<Document> result = documents.search(query);
@@ -98,18 +97,16 @@ public class SidebarController {
 			@Override
 			public void handle(ActionEvent event) {
 				reloadDocuments();
-				
+
 				// If the current document is not in the list of documents, clear the editor
-				// 
+				//
 				// Since objects are compared by reference, it will always be false since we will have "different" objects in memory if we try to do a direct comparison
 				// we need to compare the current document with the documents in the list by using the document name
 				if (mainController.getCurrentDocument().isPresent()) {
-					Boolean documentStillExists = documents
+					boolean documentStillExists = documents
 					.getDocuments()
 					.stream()
-					.filter(document -> document.getFileName().equals(mainController.getCurrentDocument().get().getFileName()))
-					.findFirst()
-					.isPresent();
+					.anyMatch(document -> document.getFileName().equals(mainController.getCurrentDocument().get().getFileName()));
 
 					if (documentStillExists) { return; }
 
@@ -137,7 +134,7 @@ public class SidebarController {
 
 					// Handle user input
 					Optional<String> value = dialog.showAndWait();
-					if (!value.isPresent()) {
+					if (value.isEmpty()) {
 						return;
 					}
 					handleNewFile(value.get());
@@ -219,12 +216,12 @@ public class SidebarController {
 		try {
 			if (targetDocument == null) { return; }
 
-			Logger.getSharedInstance().info("Requesting to delete file: " + targetDocument.getFileName());
+			Logger.getSharedInstance().warning("Requesting to delete file: " + targetDocument.getFileName());
 
 			Alert alert = new Alert(AlertType.CONFIRMATION);
 			alert.setTitle("Delete file");
 			alert.setHeaderText("Confirm deletion");
-			alert.setContentText("Are you sure you want to delete " + targetDocument.getFileName() + "?");
+			alert.setContentText("Are you sure you want to delete " + targetDocument.getTitle() + "?");
 
 			Optional<ButtonType> result = alert.showAndWait();
 			if (result.isPresent() && result.get() == ButtonType.OK) {
@@ -261,8 +258,7 @@ public class SidebarController {
 		okButton.disableProperty().bind(disableButton);
 
 		// Handle user input
-		Optional<String> value = renameDocumentDialog.showAndWait();
-		return value;
+        return renameDocumentDialog.showAndWait();
 	}
 
 	private DocumentsContainer getDocuments() {
@@ -329,7 +325,11 @@ public class SidebarController {
 			Logger.getSharedInstance().fatal("Something went wrong while writing the front matter.", meta);
 
 			// delete the file if it was created
-			if(file.exists()) { file.delete(); }
+			if(file.exists()) {
+                if(!file.delete()) {
+                    Logger.getSharedInstance().warning("Failed to delete the file.");
+                }
+            }
 		}
 	}
 }

@@ -16,9 +16,9 @@ import javafx.scene.layout.*;
 import javafx.util.Callback;
 
 public class SideBar {
-	private VBox pane;
+	private final VBox pane;
 	private TextInputDialog newFileDialog;
-	private ListView<Document> fileList;
+	private final ListView<Document> fileList;
 
 	private final MainController mainController;
 	private final SidebarController controller;
@@ -68,7 +68,7 @@ public class SideBar {
 		deleteMenuItem.setOnAction(event -> controller.deleteDocument(fileList.getSelectionModel().getSelectedItem()));
 		deleteMenuItem.disableProperty().bind(Bindings.isEmpty(fileList.getSelectionModel().getSelectedItems()));
 
-		Boolean isMacOS = Common.getOperatingSystem() == Common.OperatingSystem.MAC;
+		boolean isMacOS = Common.getOperatingSystem() == Common.OperatingSystem.MAC;
 		MenuItem openInFinder = new MenuItem("Open in " + (isMacOS ? "Finder" : "Explorer"));
 		openInFinder.setOnAction(event -> controller.openInFileManager(fileList.getSelectionModel().getSelectedItem()));
 		openInFinder.disableProperty().bind(Bindings.isEmpty(fileList.getSelectionModel().getSelectedItems()));
