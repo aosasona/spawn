@@ -10,6 +10,5 @@ module com.trulyao.spawn {
     requires org.kordamp.ikonli.javafx;
     requires org.kordamp.ikonli.ionicons4;
 
-    opens com.trulyao.spawn.application to javafx.fxml;
     exports com.trulyao.spawn.application;
 }

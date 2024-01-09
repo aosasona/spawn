@@ -217,7 +217,7 @@ public class SidebarController {
 			Alert alert = new Alert(AlertType.CONFIRMATION);
 			alert.setTitle("Delete file");
 			alert.setHeaderText("Confirm deletion");
-			alert.setContentText("Are you sure you want to delete " + targetDocument.getTitle() + "?");
+			alert.setContentText("Are you sure you want to delete " + targetDocument.getTitle().orElse(targetDocument.getFileName()) + "?");
 
 			Optional<ButtonType> result = alert.showAndWait();
 			if (result.isPresent() && result.get() == ButtonType.OK) {
